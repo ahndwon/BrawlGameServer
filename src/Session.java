@@ -1,3 +1,5 @@
+import com.google.gson.Gson;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -35,6 +37,7 @@ public class Session extends Thread {
                 int len = is.read(buf);
                 if (len == -1)
                     break;
+
 
                 String message = new String(buf, 0, len);
                 broadcaster.sendPosition(message);
