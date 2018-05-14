@@ -11,15 +11,14 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 
 import static Models.Constants.USER_MOVE;
+import static Models.Constants.USER_STOP;
 
 interface SessionListener {
     void onJoin(User user);
-
     void onDisconnect(Session session);
-
     void onMove(Session session, Move move);
-
     void onAttack(Session session);
+    void onStop(Session session);
 }
 
 public class Session extends Thread {
@@ -73,7 +72,7 @@ public class Session extends Thread {
                                 .create();
                         Join j = gson.fromJson(state, Join.class);
                         user = new User((float) (Math.random() * 600), (float) (Math.random() * 600), j.getUser(),
-                                Constants.PLAYER_DOWN, 100, USER_MOVE);
+                                Constants.PLAYER_DOWN, 100, USER_STOP);
 //                        System.out.println("join" + j);
                         listener.onJoin(user);
                         break;
@@ -90,6 +89,10 @@ public class Session extends Thread {
                     case "Attack":
                         user.setState("ATTACK");
                         listener.onAttack(this);
+                        break;
+                    case "Stop":
+                        user.setState("STOP");
+                        listener.onStop(this);
                         break;
                 }
             }

@@ -6,6 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Acceptor extends Thread implements Constants {
@@ -45,6 +46,7 @@ public class Acceptor extends Thread implements Constants {
                 System.out.println(socket.getRemoteSocketAddress() + " connected");
                 Session session = new Session(socket);
                 session.sendMap(map);
+                System.out.println("test");
                 session.setSessionListener(new SessionListener() {
                     @Override
                     public void onJoin(User user) {
@@ -90,7 +92,7 @@ public class Acceptor extends Thread implements Constants {
                                         break;
                                 }
 
-                                s.getUser().setState(USER_STOP);
+//                                s.getUser().setState(USER_STOP);
                             }
                         }
 
@@ -118,13 +120,15 @@ public class Acceptor extends Thread implements Constants {
                                 update.setY(update.getY() + PLAYER_SPEED);
                                 break;
                         }
-                        update.setState(USER_STOP);
+//                        update.setState(USER_STOP);
                     }
 
                     @Override
                     public void onAttack(Session session) {
                         System.out.println("onAttack");
                         User user = session.getUser();
+                        user.setState("ATTACK");
+                        updates.getUpdates().get(session.getUser().getName()).setState("ATTACK");
                         Vector2D userPos = new Vector2D(user.getX(), user.getY());
                         Boolean isAttacked = false;
                         List<Session> others = new ArrayList<>(sessions);
@@ -135,52 +139,77 @@ public class Acceptor extends Thread implements Constants {
                             Vector2D otherPos = new Vector2D(other.getX(), other.getY());
                             System.out.println("user : " + user.getX() + ", " + user.getY());
                             System.out.println("other : " + other.getX() + ", " + other.getY());
+
                             float diffX = userPos.x - otherPos.x;
                             float diffY = userPos.y - otherPos.y;
+
                             if (user.getDirection().equals(PLAYER_DOWN)
                                     && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2
                                     && diffY < 0) {
-                                other.damaged();
-                                user.attack();
                                 isAttacked = true;
-                                System.out.println("hit");
                             } else if (user.getDirection().equals(PLAYER_UP)
                                     && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2
                                     && diffY > 0) {
-                                other.damaged();
-                                user.attack();
                                 isAttacked = true;
-                                System.out.println("hit");
                             } else if (user.getDirection().equals(PLAYER_RIGHT)
                                     && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2
                                     && diffX < 0) {
-                                other.damaged();
-                                user.attack();
                                 isAttacked = true;
-                                System.out.println("hit");
                             } else if (user.getDirection().equals(PLAYER_LEFT)
                                     && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2
                                     && diffX > 0) {
+                                isAttacked = true;
+                            }
+
+                            if (isAttacked) {
                                 other.damaged();
                                 user.attack();
-                                isAttacked = true;
+                                updates.getUpdates().get(other.getName()).setHp(other.getHp() - Constants.DAMAGE);
+                                updates.getUpdates().get(user.getName()).setScore(user.getScore() + Constants.HIT_SCORE);
                                 System.out.println("hit");
+                                broadcaster.sendHit(user.getName(), other.getName());
+                                isAttacked = false;
                             }
 
                             if (other.getHp() < 1) {
+                                System.out.println("Kill");
+
+                                user.killed();
                                 broadcaster.sendKill(user.getName(), other.getName());
-                                updates.getUpdates().remove(other.getName());
-                                sessions.remove(s);
+                                updates.getUpdates().get(other.getName()).killed();
+                                respawn(other);
+//                                sessions.remove(s);
                             }
                         }
                     }
+
+                    @Override
+                    public void onStop(Session session) {
+                        session.getUser().setState("STOP");
+                        updates.getUpdates().get(session.getUser().getName()).setState("STOP");
+                    }
                 });
+
+                for (Session s :
+                        sessions) {
+//                    if (s.getUser().getName().equals(session.getUser().getName())) {
+//                        broadcaster.sendReject();
+//                    }
+                }
                 addSession(session);
                 session.start();
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    private void respawn(User user) {
+        user = new User((float) (Math.random() * 600), (float) (Math.random() * 600), user.getName(),
+                Constants.PLAYER_DOWN, 100, USER_STOP);
+        Update update = new Update(user.getName(), user.getX(), user.getY(),
+                user.getHp(), user.getDirection(), user.getScore(), user.getState());
+        updates.getUpdates().replace(user.getName(), update);
+    }
+
 }

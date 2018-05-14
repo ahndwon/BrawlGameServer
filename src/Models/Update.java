@@ -8,6 +8,7 @@ public class Update {
     private String direction;
     private int score;
     private String state;
+    private int speed;
 
     public Update() {
 //        user = null;
@@ -17,6 +18,7 @@ public class Update {
         direction = "DOWN";
 //        score = 0;
 //        state = null;
+        speed = Constants.PLAYER_SPEED;
     }
 
     public Update(String user, float x, float y, int hp,
@@ -28,6 +30,7 @@ public class Update {
         this.direction = direction;
         this.score = score;
         this.state = state;
+        this.speed = Constants.PLAYER_SPEED;
     }
 
     public String getUser() {
@@ -84,5 +87,13 @@ public class Update {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public void killed() {
+        this.score /= 2;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 }

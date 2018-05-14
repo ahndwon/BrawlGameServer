@@ -15,6 +15,13 @@ public interface Constants {
     int BLOCK_COUNT_Y = 32;
 
     int BLOCK_SIZE = 50;
+    int BLOCK_WIDTH = 50;
+    int BLOCK_HEIGHT = 50;
+
+    int WINDOW_WIDTH = 800;
+    int WINDOW_HEIGHT = 600;
+
+    int MENU_HEIGHT = 0;
 
     int HAMMER_UP = 4;
     int HAMMER_DOWN = 5;
@@ -22,9 +29,14 @@ public interface Constants {
     int HAMMER_RIGHT = 7;
 
     int PLAYER_SPEED = 3;
+    int PLAYER_SPEEDSLOW = 1;
+
+    int HEAL = 30;
+    int FULL_HP = 100;
 
     String USER_STOP = "STOP";
     String USER_MOVE = "MOVE";
 
     int HIT_SCORE = 50;
+    int DAMAGE = 10;
 }

@@ -9,6 +9,7 @@ public class User implements Constants {
     private int hp;
     private int score;
     private String state;
+    private int speed;
 
     public User() {
 
@@ -85,5 +86,13 @@ public class User implements Constants {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public void killed() {
+        this.score /= 2;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 }
