@@ -177,7 +177,8 @@ public class Acceptor extends Thread implements Constants {
                                 user.killed();
                                 broadcaster.sendKill(user.getName(), other.getName());
                                 updates.getUpdates().get(other.getName()).killed();
-                                respawn(other);
+                                respawn(s);
+
 //                                sessions.remove(s);
                             }
                         }
@@ -204,12 +205,13 @@ public class Acceptor extends Thread implements Constants {
         }
     }
 
-    private void respawn(User user) {
-        user = new User((float) (Math.random() * 600), (float) (Math.random() * 600), user.getName(),
-                Constants.PLAYER_DOWN, 100, USER_STOP);
-        Update update = new Update(user.getName(), user.getX(), user.getY(),
-                user.getHp(), user.getDirection(), user.getScore(), user.getState());
-        updates.getUpdates().replace(user.getName(), update);
+    private void respawn(Session session) {
+        session.setUser(new User((float) (Math.random() * 600), (float) (Math.random() * 600), session.getUser().getName(),
+                Constants.PLAYER_DOWN, 100, USER_STOP));
+        User newUser = session.getUser();
+        Update update = new Update(newUser.getName(), newUser.getX(), newUser.getY(),
+                newUser.getHp(), newUser.getDirection(), newUser.getScore(), newUser.getState());
+        updates.getUpdates().replace(newUser.getName(), update);
     }
 
 }

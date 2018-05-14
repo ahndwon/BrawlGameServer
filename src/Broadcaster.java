@@ -110,46 +110,46 @@ public class Broadcaster extends Thread implements Constants {
         this.sessions = sessions;
     }
 
-    public void applyItems(Map map) {
-        int[] m = map.getMap();
-        List<String> updateList = new ArrayList<>(updates.getUpdates().keySet());
-        for (int i = 0; i < m.length; i++) {
-            for (String name :
-                    updateList) {
-                Update update = updates.getUpdates().get(name);
-
-                if (Util.getIndexByPos((int) update.getX(), (int) update.getY()) == i) {
-                    switch (m[i]) {
-                        case 1:
-                            update.setSpeed(PLAYER_SPEEDSLOW);
-                            for (Session s : sessions) {
-                                if (update.getUser().equals(s.getUser().getName())) {
-                                    s.getUser().setSpeed(PLAYER_SPEEDSLOW);
-                                }
-                            }
-                            break;
-
-                        case 2:
-                            if( update.getHp() <= FULL_HP - HEAL)
-                                update.setHp(update.getHp() + HEAL);
-                            for (Session s : sessions) {
-                                if (update.getUser().equals(s.getUser().getName())) {
-                                    if( s.getUser().getHp() <= FULL_HP - HEAL)
-                                        s.getUser().setHp(s.getUser().getHp() + HEAL);
-                                }
-                            }
-                            break;
-                    }
-                } else {
-                    update.setSpeed(PLAYER_SPEED);
-                    for (Session s : sessions) {
-                        if (update.getUser().equals(s.getUser().getName())) {
-                            s.getUser().setSpeed(PLAYER_SPEED);
-                        }
-                    }
-                }
-            }
-        }
-
-    }
+//    public void applyItems(Map map) {
+//        int[] m = map.getMap();
+//        List<String> updateList = new ArrayList<>(updates.getUpdates().keySet());
+//        for (int i = 0; i < m.length; i++) {
+//            for (String name :
+//                    updateList) {
+//                Update update = updates.getUpdates().get(name);
+//
+//                if (l.getIndexByPos((int) update.getX(), (int) update.getY()) == i) {
+//                    switch (m[i]) {
+//                        case 1:
+//                            update.setSpeed(PLAYER_SPEEDSLOW);
+//                            for (Session s : sessions) {
+//                                if (update.getUser().equals(s.getUser().getName())) {
+//                                    s.getUser().setSpeed(PLAYER_SPEEDSLOW);
+//                                }
+//                            }
+//                            break;
+//
+//                        case 2:
+//                            if( update.getHp() <= FULL_HP - HEAL)
+//                                update.setHp(update.getHp() + HEAL);
+//                            for (Session s : sessions) {
+//                                if (update.getUser().equals(s.getUser().getName())) {
+//                                    if( s.getUser().getHp() <= FULL_HP - HEAL)
+//                                        s.getUser().setHp(s.getUser().getHp() + HEAL);
+//                                }
+//                            }
+//                            break;
+//                    }
+//                } else {
+//                    update.setSpeed(PLAYER_SPEED);
+//                    for (Session s : sessions) {
+//                        if (update.getUser().equals(s.getUser().getName())) {
+//                            s.getUser().setSpeed(PLAYER_SPEED);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//    }
 }
