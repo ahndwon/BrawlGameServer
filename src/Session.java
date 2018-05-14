@@ -1,7 +1,4 @@
-import Models.Join;
-import Models.Map;
-import Models.Move;
-import Models.User;
+import Models.*;
 import TypeAdapter.JoinTypeAdapter;
 import TypeAdapter.MapTypeAdapter;
 import TypeAdapter.MoveTypeAdapter;
@@ -13,26 +10,26 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
+import static Models.Constants.USER_MOVE;
+
 interface SessionListener {
-    void onJoin(Join join);
+    void onJoin(User user);
 
     void onDisconnect(Session session);
 
     void onMove(Session session, Move move);
 
-//    void onAttack(Session)
+    void onAttack(Session session);
 }
 
 public class Session extends Thread {
     private User user;
     private Socket socket;
     private SessionListener listener;
-    private Broadcaster broadcaster;
 
-    Session(Socket socket, Broadcaster broadcaster) {
+    Session(Socket socket) {
         this.socket = socket;
-        this.broadcaster = broadcaster;
-        this.user = new User();
+//        this.user = new User();
     }
 
     void setSessionListener(SessionListener listener) {
@@ -66,34 +63,34 @@ public class Session extends Thread {
 
 //                String message = new String(buf, 0, len);
                 String type = jsonObject.get("type").toString().replace("\"", "");
-                String state = jsonObject.get("body").toString();
+                String state;
 
                 switch (type) {
                     case "Join":
+                        state = jsonObject.get("body").toString();
                         gson = new GsonBuilder()
                                 .registerTypeAdapter(Join.class, new JoinTypeAdapter())
                                 .create();
                         Join j = gson.fromJson(state, Join.class);
+                        user = new User((float) (Math.random() * 600), (float) (Math.random() * 600), j.getUser(),
+                                Constants.PLAYER_DOWN, 100, USER_MOVE);
 //                        System.out.println("join" + j);
-                        listener.onJoin(j);
-                        user.setName(j.getUser());
+                        listener.onJoin(user);
                         break;
                     case "Move":
+                        state = jsonObject.get("body").toString();
                         gson = new GsonBuilder()
                                 .registerTypeAdapter(Move.class, new MoveTypeAdapter())
                                 .create();
                         Move m = gson.fromJson(state, Move.class);
+                        user.setDirection(m.getDirection());
+                        user.setState(Constants.USER_MOVE);
                         listener.onMove(this, m);
                         break;
                     case "Attack":
-
+                        user.setState("ATTACK");
+                        listener.onAttack(this);
                         break;
-//                        gson = new GsonBuilder()
-//                                .registerTypeAdapter(Move.class, new MoveTypeAdapter())
-//                                .create();
-//                        Move m = gson.fromJson(state, Move.class);
-//                        listener.onMove(this, m);
-//                        break;
                 }
             }
 
@@ -106,11 +103,6 @@ public class Session extends Thread {
             e.printStackTrace();
         }
     }
-
-//    private void disconnect() {
-//
-//    }
-
 
     public void sendMap(Map map) {
         Gson gson = new GsonBuilder()

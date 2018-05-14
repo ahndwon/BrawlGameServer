@@ -1,10 +1,10 @@
 
-import Models.Map;
 import Models.Updates;
-import TypeAdapter.MapTypeAdapter;
 import TypeAdapter.UpdatesTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,8 +23,15 @@ public class Broadcaster extends Thread {
         this.updates = updates;
     }
 
-    public void sendPosition(String message) {
-        broadcast(message);
+    public void sendKill(String from, String to) {
+        Gson gson = new GsonBuilder().create();
+        JsonObject jsonObject = new JsonObject();
+        JsonObject body = new JsonObject();
+        body.add("from", new JsonPrimitive(from));
+        body.add("to", new JsonPrimitive(to));
+        jsonObject.add("type", new JsonPrimitive("Kill"));
+        jsonObject.add("body", body);
+        broadcast(jsonObject.toString());
     }
 
     public void sendUpdates() {
@@ -32,14 +39,6 @@ public class Broadcaster extends Thread {
                 .registerTypeAdapter(Updates.class, new UpdatesTypeAdapter())
                 .create();
         broadcast(gson.toJson(updates));
-//        ByteBuffer byteBuffer = ByteBuffer.allocate(2);
-//        byteBuffer.putShort((short) gson.toJson(map).getBytes().length);
-//        try {
-//            socket.getOutputStream().write(byteBuffer.array());
-//            socket.getOutputStream().write(gson.toJson(map).getBytes());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 
     private void broadcast(String message) {
@@ -55,7 +54,10 @@ public class Broadcaster extends Thread {
 //                System.out.println("message : " + message);
                 os.write(buffer.array());
                 os.write(message.getBytes());
-            }  catch (IOException e ) {
+            } catch (SocketException s) {
+                sessions.remove(session);
+                s.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -69,7 +71,7 @@ public class Broadcaster extends Thread {
         Random random = new Random();
         while (true) {
             try {
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.MILLISECONDS.sleep(333);
                 // TODO...
                 sendUpdates();
 //                int index = random.nextInt(words.size());
@@ -79,5 +81,9 @@ public class Broadcaster extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void update(List<Session> sessions) {
+        this.sessions = sessions;
     }
 }
