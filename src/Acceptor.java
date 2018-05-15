@@ -1,12 +1,10 @@
 import Models.*;
-import Models.Map;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Acceptor extends Thread implements Constants {
@@ -46,7 +44,6 @@ public class Acceptor extends Thread implements Constants {
                 System.out.println(socket.getRemoteSocketAddress() + " connected");
                 Session session = new Session(socket);
                 session.sendMap(map);
-                System.out.println("test");
                 session.setSessionListener(new SessionListener() {
                     @Override
                     public void onJoin(User user) {
@@ -73,54 +70,45 @@ public class Acceptor extends Thread implements Constants {
                                 s.getUser().setDirection(move.getDirection());
                                 String direction = move.getDirection();
 
-                                switch (direction) {
-                                    case "UP":
-                                        System.out.println("up");
-                                        s.getUser().setY(session.getUser().getY() - PLAYER_SPEED);
-                                        break;
-                                    case "LEFT":
-                                        System.out.println("left");
-                                        s.getUser().setX(session.getUser().getX() - PLAYER_SPEED);
-                                        break;
-                                    case "RIGHT":
-                                        System.out.println("right");
-                                        s.getUser().setX(session.getUser().getX() + PLAYER_SPEED);
-                                        break;
-                                    case "DOWN":
-                                        System.out.println("down");
-                                        s.getUser().setY(session.getUser().getY() + PLAYER_SPEED);
-                                        break;
-                                }
+                                int[] m = map.getMap();
 
-//                                s.getUser().setState(USER_STOP);
+                                s.getUser().setSpeed(PLAYER_SPEED);
+                                session.getUser().setSpeed(PLAYER_SPEED);
+                                updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED);
+
+                                for (int i = 0; i < m.length; i++) {
+//                                        Update update = updates.getUpdates().get(name);
+//                System.out.println("index " + Util.getIndexByPos((int) update.getX(), (int) update.getY()));
+//                                    s.getUser().setSpeed(PLAYER_SPEED);
+//                                    session.getUser().setSpeed(PLAYER_SPEED);
+//                                    updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED);
+
+                                    if (Util.getIndexByPos((int) s.getUser().getX(), (int) s.getUser().getY()) == i) {
+//                    System.out.println("same, m[i] : " + m[i]);
+                                        switch (m[i]) {
+                                            case 1:
+                                                s.getUser().setSpeed(PLAYER_SPEEDSLOW);
+                                                session.getUser().setSpeed(PLAYER_SPEEDSLOW);
+                                                updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEEDSLOW);
+                                                break;
+
+                                            case 2:
+                                                if (s.getUser().getHp() >= FULL_HP - HEAL) {
+                                                    s.getUser().setHp(100);
+                                                    session.getUser().setHp(100);
+                                                    updates.getUpdates().get(s.getUser().getName()).setHp(100);
+                                                } else {
+                                                    s.getUser().setHp(s.getUser().getHp() + HEAL);
+                                                    session.getUser().setHp(s.getUser().getHp() + HEAL);
+                                                    updates.getUpdates().get(s.getUser().getName()).setHp(s.getUser().getHp() + HEAL);
+                                                }
+                                                break;
+                                        }
+                                    }
+                                }
+                                moveUsers(direction, s);
                             }
                         }
-
-                        updates.getUpdates().get(session.getUser().getName()).setDirection(move.getDirection());
-                        String direction = move.getDirection();
-                        Update update = updates.getUpdates().get(session.getUser().getName());
-                        update.setState(USER_MOVE);
-                        update.setDirection(direction);
-
-                        switch (direction) {
-                            case "UP":
-                                System.out.println("up2");
-                                update.setY(update.getY() - PLAYER_SPEED);
-                                break;
-                            case "LEFT":
-                                System.out.println("left2");
-                                update.setX(update.getX() - PLAYER_SPEED);
-                                break;
-                            case "RIGHT":
-                                System.out.println("right2");
-                                update.setX(update.getX() + PLAYER_SPEED);
-                                break;
-                            case "DOWN":
-                                System.out.println("down2");
-                                update.setY(update.getY() + PLAYER_SPEED);
-                                break;
-                        }
-//                        update.setState(USER_STOP);
                     }
 
                     @Override
@@ -137,8 +125,6 @@ public class Acceptor extends Thread implements Constants {
                         for (Session s : others) {
                             User other = s.getUser();
                             Vector2D otherPos = new Vector2D(other.getX(), other.getY());
-                            System.out.println("user : " + user.getX() + ", " + user.getY());
-                            System.out.println("other : " + other.getX() + ", " + other.getY());
 
                             float diffX = userPos.x - otherPos.x;
                             float diffY = userPos.y - otherPos.y;
@@ -171,14 +157,13 @@ public class Acceptor extends Thread implements Constants {
                                 isAttacked = false;
                             }
 
-                            if (other.getHp() < 1) {
+                            if (other.getHp() <= DAMAGE) {
                                 System.out.println("Kill");
 
                                 user.killed();
                                 broadcaster.sendKill(user.getName(), other.getName());
                                 updates.getUpdates().get(other.getName()).killed();
-                                respawn(other);
-//                                sessions.remove(s);
+                                respawn(other, s);
                             }
                         }
                     }
@@ -189,13 +174,6 @@ public class Acceptor extends Thread implements Constants {
                         updates.getUpdates().get(session.getUser().getName()).setState("STOP");
                     }
                 });
-
-                for (Session s :
-                        sessions) {
-//                    if (s.getUser().getName().equals(session.getUser().getName())) {
-//                        broadcaster.sendReject();
-//                    }
-                }
                 addSession(session);
                 session.start();
             }
@@ -204,12 +182,49 @@ public class Acceptor extends Thread implements Constants {
         }
     }
 
-    private void respawn(User user) {
+    private void respawn(User user, Session session) {
         user = new User((float) (Math.random() * 600), (float) (Math.random() * 600), user.getName(),
                 Constants.PLAYER_DOWN, 100, USER_STOP);
         Update update = new Update(user.getName(), user.getX(), user.getY(),
                 user.getHp(), user.getDirection(), user.getScore(), user.getState());
         updates.getUpdates().replace(user.getName(), update);
+        session.setUser(user);
     }
 
+    private void moveUsers(String direction, Session s) {
+        switch (direction) {
+            case "UP":
+                s.getUser().setY(s.getUser().getY() - s.getUser().getSpeed());
+                break;
+            case "LEFT":
+                s.getUser().setX(s.getUser().getX() - s.getUser().getSpeed());
+                break;
+            case "RIGHT":
+                s.getUser().setX(s.getUser().getX() + s.getUser().getSpeed());
+                break;
+            case "DOWN":
+                s.getUser().setY(s.getUser().getY() + s.getUser().getSpeed());
+                break;
+        }
+
+        updates.getUpdates().get(s.getUser().getName()).setDirection(direction);
+        Update update = updates.getUpdates().get(s.getUser().getName());
+        update.setState(USER_MOVE);
+        update.setDirection(direction);
+
+        switch (direction) {
+            case "UP":
+                update.setY(update.getY() - update.getSpeed());
+                break;
+            case "LEFT":
+                update.setX(update.getX() - update.getSpeed());
+                break;
+            case "RIGHT":
+                update.setX(update.getX() + update.getSpeed());
+                break;
+            case "DOWN":
+                update.setY(update.getY() + update.getSpeed());
+                break;
+        }
+    }
 }

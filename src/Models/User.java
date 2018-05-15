@@ -12,7 +12,7 @@ public class User implements Constants {
     private int speed;
 
     public User() {
-
+        speed = Constants.PLAYER_SPEED;
     }
 
     public User(float x, float y, String name, String direction, int hp, String state) {
@@ -22,6 +22,7 @@ public class User implements Constants {
         this.direction = direction;
         this.hp = hp;
         this.state = state;
+        this.speed = Constants.PLAYER_SPEED;
     }
 
     public void setHp(int hp) {
@@ -94,5 +95,9 @@ public class User implements Constants {
 
     public void setSpeed(int speed) {
         this.speed = speed;
+    }
+
+    public int getSpeed() {
+        return speed;
     }
 }

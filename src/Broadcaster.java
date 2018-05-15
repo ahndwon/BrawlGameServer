@@ -1,7 +1,6 @@
 
 import Models.Constants;
 import Models.Map;
-import Models.Update;
 import Models.Updates;
 import TypeAdapter.UpdatesTypeAdapter;
 import com.google.gson.Gson;
@@ -13,9 +12,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Broadcaster extends Thread implements Constants {
@@ -77,13 +74,12 @@ public class Broadcaster extends Thread implements Constants {
 
                 os.write(buffer.array());
                 os.write(message.getBytes());
+//                System.out.println("message: " + message);
             } catch (SocketException s) {
                 sessions.remove(session);
                 s.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-
             }
         }
     }
@@ -91,65 +87,18 @@ public class Broadcaster extends Thread implements Constants {
 
     @Override
     public void run() {
-        Random random = new Random();
         while (true) {
             try {
                 TimeUnit.MILLISECONDS.sleep(100);
-                // TODO...
+//                applyItems();
                 sendUpdates();
-//                int index = random.nextInt(words.size());
-
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void update(List<Session> sessions) {
+    void update(List<Session> sessions) {
         this.sessions = sessions;
-    }
-
-    public void applyItems(Map map) {
-        int[] m = map.getMap();
-        List<String> updateList = new ArrayList<>(updates.getUpdates().keySet());
-        for (int i = 0; i < m.length; i++) {
-            for (String name :
-                    updateList) {
-                Update update = updates.getUpdates().get(name);
-
-                if (Util.getIndexByPos((int) update.getX(), (int) update.getY()) == i) {
-                    switch (m[i]) {
-                        case 1:
-                            update.setSpeed(PLAYER_SPEEDSLOW);
-                            for (Session s : sessions) {
-                                if (update.getUser().equals(s.getUser().getName())) {
-                                    s.getUser().setSpeed(PLAYER_SPEEDSLOW);
-                                }
-                            }
-                            break;
-
-                        case 2:
-                            if( update.getHp() <= FULL_HP - HEAL)
-                                update.setHp(update.getHp() + HEAL);
-                            for (Session s : sessions) {
-                                if (update.getUser().equals(s.getUser().getName())) {
-                                    if( s.getUser().getHp() <= FULL_HP - HEAL)
-                                        s.getUser().setHp(s.getUser().getHp() + HEAL);
-                                }
-                            }
-                            break;
-                    }
-                } else {
-                    update.setSpeed(PLAYER_SPEED);
-                    for (Session s : sessions) {
-                        if (update.getUser().equals(s.getUser().getName())) {
-                            s.getUser().setSpeed(PLAYER_SPEED);
-                        }
-                    }
-                }
-            }
-        }
-
     }
 }
