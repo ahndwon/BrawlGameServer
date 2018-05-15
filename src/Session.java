@@ -107,7 +107,6 @@ public class Session extends Thread {
         }
     }
 
-
     public void sendMap(Map map) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Map.class, new MapTypeAdapter())
@@ -128,9 +127,5 @@ public class Session extends Thread {
 
     public User getUser() {
         return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }
