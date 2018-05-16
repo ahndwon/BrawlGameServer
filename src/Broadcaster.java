@@ -2,6 +2,7 @@
 import Models.Constants;
 import Models.Map;
 import Models.Updates;
+import TypeAdapter.MapTypeAdapter;
 import TypeAdapter.UpdatesTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,16 +13,21 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Broadcaster extends Thread implements Constants {
     private List<Session> sessions;
     private Updates updates;
+    private HashMap<Integer, Integer> itemRespawns;
+    private Map map;
 
-    Broadcaster(List<Session> sessions, Updates updates) {
+
+    Broadcaster(List<Session> sessions, Updates updates, Map map) {
         this.sessions = sessions;
         this.updates = updates;
+        itemRespawns = new HashMap<>();
+        this.map = map;
     }
 
     public void sendKill(String from, String to) {
@@ -75,9 +81,11 @@ public class Broadcaster extends Thread implements Constants {
                 os.write(buffer.array());
                 os.write(message.getBytes());
 //                System.out.println("message: " + message);
-            } catch (SocketException s) {
+            } catch (SocketException ignore) {
+                updates.getUpdates().remove(session.getUser().getName());
+
                 sessions.remove(session);
-                s.printStackTrace();
+//                s.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -87,18 +95,40 @@ public class Broadcaster extends Thread implements Constants {
 
     @Override
     public void run() {
-        while (true) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(100);
-//                applyItems();
+        Timer updateTimer = new Timer();
+        updateTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
                 sendUpdates();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+
+                List<Integer> itemIndex = new ArrayList<>(itemRespawns.keySet());
+
+                for (Integer index : itemIndex) {
+                    System.out.println("index :" + index + ", " + itemRespawns.get(index));
+                    itemRespawns.replace(index, itemRespawns.get(index) - 10);
+                    if (itemRespawns.get(index) < 0) {
+                        map.getMap()[index] = 2;
+                        sendMap();
+                        itemRespawns.remove(index);
+                    }
+                }
             }
-        }
+        }, 0, 100);
+
     }
 
     void update(List<Session> sessions) {
         this.sessions = sessions;
+    }
+
+    public void addItemRespawn(int index) {
+        itemRespawns.put(index, 1000);
+    }
+
+    public void sendMap() {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Map.class, new MapTypeAdapter())
+                .create();
+        broadcast(gson.toJson(map));
     }
 }
