@@ -130,5 +130,6 @@ public class Broadcaster extends Thread implements Constants {
                 .registerTypeAdapter(Map.class, new MapTypeAdapter())
                 .create();
         broadcast(gson.toJson(map));
+        System.out.println(gson.toJson(map));
     }
 }

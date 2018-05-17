@@ -39,4 +39,6 @@ public interface Constants {
 
     int HIT_SCORE = 50;
     int DAMAGE = 10;
+
+    int MAPSIZE = 1600;
 }

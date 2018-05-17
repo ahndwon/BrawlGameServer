@@ -77,6 +77,19 @@ public class Acceptor extends Thread implements Constants {
                                 updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED);
 
                                 for (int i = 0; i < m.length; i++) {
+
+                                    if (s.getUser().getX() < 0) {
+                                        s.getUser().setX(s.getUser().getX() + Constants.MAPSIZE);
+                                    } else if (s.getUser().getX() > Constants.MAPSIZE) {
+                                        s.getUser().setX(s.getUser().getX() - Constants.MAPSIZE);
+                                    }
+
+                                    if (s.getUser().getY() < 0) {
+                                        s.getUser().setY(s.getUser().getY() + Constants.MAPSIZE);
+                                    } else if (s.getUser().getX() > Constants.MAPSIZE) {
+                                        s.getUser().setY(s.getUser().getY() - Constants.MAPSIZE);
+                                    }
+
                                     if (Util.getIndexByPos((int) s.getUser().getX(), (int) s.getUser().getY()) == i) {
                                         switch (m[i]) {
                                             case 1:
@@ -158,7 +171,7 @@ public class Acceptor extends Thread implements Constants {
                             if (other.getHp() <= DAMAGE) {
                                 System.out.println("Kill");
 
-                                user.killed();
+                                other.killed();
                                 broadcaster.sendKill(user.getName(), other.getName());
                                 updates.getUpdates().get(other.getName()).killed();
                                 respawn(other, s);
