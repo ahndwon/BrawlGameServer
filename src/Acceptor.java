@@ -112,7 +112,7 @@ public class Acceptor extends Thread implements Constants {
                                                 }
                                                 broadcaster.addItemRespawn(i);
                                                 m[i] = 0;
-                                                broadcaster.sendMap();
+                                                broadcaster.sendCorrectMap(i, 0);
                                                 break;
                                         }
                                     }
@@ -171,7 +171,7 @@ public class Acceptor extends Thread implements Constants {
                             if (other.getHp() <= DAMAGE) {
                                 System.out.println("Kill");
 
-                                other.killed();
+                                user.killed();
                                 broadcaster.sendKill(user.getName(), other.getName());
                                 updates.getUpdates().get(other.getName()).killed();
                                 respawn(other, s);
