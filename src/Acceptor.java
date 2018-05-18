@@ -77,6 +77,19 @@ public class Acceptor extends Thread implements Constants {
                                 updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED);
 
                                 for (int i = 0; i < m.length; i++) {
+
+                                    if (s.getUser().getX() < 0) {
+                                        s.getUser().setX(s.getUser().getX() + Constants.MAPSIZE);
+                                    } else if (s.getUser().getX() > Constants.MAPSIZE) {
+                                        s.getUser().setX(s.getUser().getX() - Constants.MAPSIZE);
+                                    }
+
+                                    if (s.getUser().getY() < 0) {
+                                        s.getUser().setY(s.getUser().getY() + Constants.MAPSIZE);
+                                    } else if (s.getUser().getY() > Constants.MAPSIZE) {
+                                        s.getUser().setY(s.getUser().getY() - Constants.MAPSIZE);
+                                    }
+
                                     if (Util.getIndexByPos((int) s.getUser().getX(), (int) s.getUser().getY()) == i) {
                                         switch (m[i]) {
                                             case 1:
@@ -99,7 +112,7 @@ public class Acceptor extends Thread implements Constants {
                                                 }
                                                 broadcaster.addItemRespawn(i);
                                                 m[i] = 0;
-                                                broadcaster.sendMap();
+                                                broadcaster.sendCorrectMap(i, 0);
                                                 break;
                                         }
                                     }

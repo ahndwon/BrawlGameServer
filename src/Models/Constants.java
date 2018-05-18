@@ -28,8 +28,8 @@ public interface Constants {
     int HAMMER_LEFT = 6;
     int HAMMER_RIGHT = 7;
 
-    int PLAYER_SPEED = 3;
-    int PLAYER_SPEEDSLOW = 1;
+    int PLAYER_SPEED = 5;
+    int PLAYER_SPEEDSLOW = 3;
 
     int HEAL = 30;
     int FULL_HP = 100;
@@ -39,4 +39,6 @@ public interface Constants {
 
     int HIT_SCORE = 50;
     int DAMAGE = 10;
+
+    int MAPSIZE = 1600;
 }

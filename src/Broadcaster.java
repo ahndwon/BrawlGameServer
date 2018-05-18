@@ -108,7 +108,8 @@ public class Broadcaster extends Thread implements Constants {
                     itemRespawns.replace(index, itemRespawns.get(index) - 10);
                     if (itemRespawns.get(index) < 0) {
                         map.getMap()[index] = 2;
-                        sendMap();
+//                        sendMap();
+                        sendCorrectMap(index, 2);
                         itemRespawns.remove(index);
                     }
                 }
@@ -130,5 +131,15 @@ public class Broadcaster extends Thread implements Constants {
                 .registerTypeAdapter(Map.class, new MapTypeAdapter())
                 .create();
         broadcast(gson.toJson(map));
+    }
+
+    public void sendCorrectMap(int index, int message) {
+        Gson gson = new GsonBuilder().create();
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("type", "Correct");
+        jsonObject.addProperty("index", index);
+        jsonObject.addProperty("message", message);
+        broadcast(jsonObject.toString());
+
     }
 }
