@@ -10,14 +10,19 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
+import static Models.Constants.MAPSIZE;
 import static Models.Constants.USER_MOVE;
 import static Models.Constants.USER_STOP;
 
 interface SessionListener {
     void onJoin(User user);
+
     void onDisconnect(Session session);
+
     void onMove(Session session, Move move);
+
     void onAttack(Session session);
+
     void onStop(Session session);
 }
 
@@ -71,9 +76,8 @@ public class Session extends Thread {
                                 .registerTypeAdapter(Join.class, new JoinTypeAdapter())
                                 .create();
                         Join j = gson.fromJson(state, Join.class);
-                        user = new User((float) (Math.random() * 600), (float) (Math.random() * 600), j.getUser(),
-                                Constants.PLAYER_DOWN, 100, USER_STOP);
-//                        System.out.println("join" + j);
+                        user = new User((float) (Math.random() * MAPSIZE), (float) (Math.random() * MAPSIZE), j.getUser(),
+                                Constants.PLAYER_DOWN, 100, 0, USER_STOP);
                         listener.onJoin(user);
                         break;
                     case "Move":
