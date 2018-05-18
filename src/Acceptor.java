@@ -184,6 +184,14 @@ public class Acceptor extends Thread implements Constants {
                         session.getUser().setState("STOP");
                         updates.getUpdates().get(session.getUser().getName()).setState("STOP");
                     }
+
+                    @Override
+                    public void onSetImage(Session session1, Image image) {
+                        updates.getUpdates().get(session.getUser().getName()).setCharacterImage(image.getCharacterImage());
+
+                    }
+
+
                 });
                 addSession(session);
                 session.start();

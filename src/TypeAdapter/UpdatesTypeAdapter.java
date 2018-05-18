@@ -32,6 +32,7 @@ public class UpdatesTypeAdapter extends TypeAdapter<Updates> {
             writer.name("score").value(update.getScore());
             writer.name("state").value(update.getState());
             writer.name("speed").value(update.getSpeed());
+            writer.name("character").value(update.getCharacterImage());
             writer.endObject();
         }
         writer.endArray();

@@ -24,6 +24,7 @@ public class UpdateTypeAdapter extends TypeAdapter<Update> {
         writer.name("direction").value(update.getDirection());
         writer.name("score").value(update.getScore());
         writer.name("state").value(update.getState());
+        writer.name("num").value(update.getCharacterImage());
 
         writer.name("map");
         writer.beginArray();
@@ -73,6 +74,7 @@ public class UpdateTypeAdapter extends TypeAdapter<Update> {
                 case "state":
                     update.setState(reader.nextString());
                     break;
+
             }
         }
         return update;

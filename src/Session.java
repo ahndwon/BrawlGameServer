@@ -1,4 +1,5 @@
 import Models.*;
+import TypeAdapter.ImageTypeAdapter;
 import TypeAdapter.JoinTypeAdapter;
 import TypeAdapter.MapTypeAdapter;
 import TypeAdapter.MoveTypeAdapter;
@@ -19,6 +20,8 @@ interface SessionListener {
     void onMove(Session session, Move move);
     void onAttack(Session session);
     void onStop(Session session);
+
+    void onSetImage(Session session, Image image);
 }
 
 public class Session extends Thread {
@@ -94,6 +97,15 @@ public class Session extends Thread {
                         user.setState("STOP");
                         listener.onStop(this);
                         break;
+                    case "Character" :
+                        state = jsonObject.get("body").toString();
+                        gson = new GsonBuilder()
+                                .registerTypeAdapter(Image.class, new ImageTypeAdapter())
+                                .create();
+                        Image image = gson.fromJson(state, Image.class);
+                        user.setCharacterImage(image.getCharacterImage());
+                        listener.onSetImage(this, image);
+
                 }
             }
 

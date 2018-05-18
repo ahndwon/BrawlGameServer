@@ -10,6 +10,7 @@ public class User implements Constants {
     private int score;
     private String state;
     private int speed;
+    private int characterImage ;
 
     public User() {
         speed = Constants.PLAYER_SPEED;
@@ -23,6 +24,7 @@ public class User implements Constants {
         this.hp = hp;
         this.state = state;
         this.speed = Constants.PLAYER_SPEED;
+        this.characterImage = 0;
     }
 
     public void setHp(int hp) {
@@ -99,5 +101,13 @@ public class User implements Constants {
 
     public int getSpeed() {
         return speed;
+    }
+
+    public int getCharacterImage() {
+        return characterImage;
+    }
+
+    public void setCharacterImage(int characterImage) {
+        this.characterImage = characterImage;
     }
 }
