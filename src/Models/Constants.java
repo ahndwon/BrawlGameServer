@@ -34,6 +34,9 @@ public interface Constants {
     int HEAL = 30;
     int FULL_HP = 100;
 
+    int TILE_SWAMP = 1;
+    int TILE_HEAL = 2;
+
     String USER_STOP = "STOP";
     String USER_MOVE = "MOVE";
 

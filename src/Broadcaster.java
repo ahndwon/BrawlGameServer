@@ -14,19 +14,18 @@ import java.io.OutputStream;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class Broadcaster extends Thread implements Constants {
     private List<Session> sessions;
     private Updates updates;
-    private HashMap<Integer, Integer> itemRespawns;
+    private HashMap<Integer, Integer> itemRespawn;
     private Map map;
 
 
     Broadcaster(List<Session> sessions, Updates updates, Map map) {
         this.sessions = sessions;
         this.updates = updates;
-        itemRespawns = new HashMap<>();
+        itemRespawn = new HashMap<>();
         this.map = map;
     }
 
@@ -101,16 +100,16 @@ public class Broadcaster extends Thread implements Constants {
             public void run() {
                 sendUpdates();
 
-                List<Integer> itemIndex = new ArrayList<>(itemRespawns.keySet());
+                List<Integer> itemIndex = new ArrayList<>(itemRespawn.keySet());
 
                 for (Integer index : itemIndex) {
-                    System.out.println("index :" + index + ", " + itemRespawns.get(index));
-                    itemRespawns.replace(index, itemRespawns.get(index) - 10);
-                    if (itemRespawns.get(index) < 0) {
+                    System.out.println("index :" + index + ", " + itemRespawn.get(index));
+                    itemRespawn.replace(index, itemRespawn.get(index) - 10);
+                    if (itemRespawn.get(index) < 0) {
                         map.getMap()[index] = 2;
 //                        sendMap();
                         sendCorrectMap(index, 2);
-                        itemRespawns.remove(index);
+                        itemRespawn.remove(index);
                     }
                 }
             }
@@ -123,7 +122,7 @@ public class Broadcaster extends Thread implements Constants {
     }
 
     public void addItemRespawn(int index) {
-        itemRespawns.put(index, 1000);
+        itemRespawn.put(index, 1000);
     }
 
     public void sendMap() {
@@ -140,6 +139,5 @@ public class Broadcaster extends Thread implements Constants {
         jsonObject.addProperty("index", index);
         jsonObject.addProperty("message", message);
         broadcast(jsonObject.toString());
-
     }
 }

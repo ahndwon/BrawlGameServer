@@ -1,9 +1,7 @@
 package Models;
 
-public class Map {
+public class Map implements Constants {
     private int[] map;
-    private final int SWAMP = 1;
-    private final int HEAL = 2;
 
     public Map() {
         map = new int[1024];
@@ -22,7 +20,7 @@ public class Map {
         }
 
         shuffle(items);
-        insertItem(items, HEAL, 64);
+        insertItem(items, TILE_HEAL, 64);
     }
 
     private void shuffleSwamp() {
@@ -33,7 +31,7 @@ public class Map {
         }
 
         shuffle(swamps);
-        insertItem(swamps, SWAMP, 129);
+        insertItem(swamps, TILE_SWAMP, 129);
     }
 
     private void shuffle(int[] data) {

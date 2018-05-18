@@ -99,13 +99,11 @@ public class Acceptor extends Thread implements Constants {
                                                 break;
 
                                             case 2:
-                                                System.out.println("sendmap");
-
                                                 if (s.getUser().getHp() >= FULL_HP - HEAL) {
                                                     s.getUser().setHp(100);
                                                     session.getUser().setHp(100);
                                                     updates.getUpdates().get(s.getUser().getName()).setHp(100);
-                                                } else {
+                                                } else if (s.getUser().getHp() <= FULL_HP - HEAL){
                                                     s.getUser().setHp(s.getUser().getHp() + HEAL);
                                                     session.getUser().setHp(s.getUser().getHp() + HEAL);
                                                     updates.getUpdates().get(s.getUser().getName()).setHp(s.getUser().getHp() + HEAL);
@@ -141,19 +139,19 @@ public class Acceptor extends Thread implements Constants {
                             float diffY = userPos.y - otherPos.y;
 
                             if (user.getDirection().equals(PLAYER_DOWN)
-                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2
+                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 1.5f
                                     && diffY < 0) {
                                 isAttacked = true;
                             } else if (user.getDirection().equals(PLAYER_UP)
-                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2
+                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 1.5f
                                     && diffY > 0) {
                                 isAttacked = true;
                             } else if (user.getDirection().equals(PLAYER_RIGHT)
-                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2
+                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 1.5f
                                     && diffX < 0) {
                                 isAttacked = true;
                             } else if (user.getDirection().equals(PLAYER_LEFT)
-                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2
+                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 1.5f
                                     && diffX > 0) {
                                 isAttacked = true;
                             }
@@ -203,7 +201,7 @@ public class Acceptor extends Thread implements Constants {
 
     private void respawn(User user, Session session) {
         user = new User((float) (Math.random() * 600), (float) (Math.random() * 600), user.getName(),
-                Constants.PLAYER_DOWN, 100, USER_STOP);
+                Constants.PLAYER_DOWN, 100, user.getScore(), USER_STOP);
         Update update = new Update(user.getName(), user.getX(), user.getY(),
                 user.getHp(), user.getDirection(), user.getScore(), user.getState());
         updates.getUpdates().replace(user.getName(), update);

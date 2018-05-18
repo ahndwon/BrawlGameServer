@@ -16,12 +16,13 @@ public class User implements Constants {
         speed = Constants.PLAYER_SPEED;
     }
 
-    public User(float x, float y, String name, String direction, int hp, String state) {
+    public User(float x, float y, String name, String direction, int hp, int score, String state) {
         this.x = x;
         this.y = y;
         this.name = name;
         this.direction = direction;
         this.hp = hp;
+        this.score = score;
         this.state = state;
         this.speed = Constants.PLAYER_SPEED;
         this.characterImage = 0;
