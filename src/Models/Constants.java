@@ -33,15 +33,20 @@ public interface Constants {
 
     int HEAL = 30;
     int FULL_HP = 100;
+    int FULL_MANA = 100;
+    int MANA = 30;
 
     int TILE_SWAMP = 1;
     int TILE_HEAL = 2;
+    int TILE_MANA = 3;
 
     String USER_STOP = "STOP";
     String USER_MOVE = "MOVE";
 
     int HIT_SCORE = 50;
     int DAMAGE = 10;
+    int SPECIAL_DAMAGE = 30;
+    int SPECIAL_MANA = 40;
 
     int MAPSIZE = 1600;
 }

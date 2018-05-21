@@ -54,7 +54,7 @@ public class Acceptor extends Thread implements Constants {
 
                         } else {
                             Update update = new Update(user.getName(), user.getX(), user.getY(),
-                                    user.getHp(), user.getDirection(), user.getScore(), user.getState());
+                                    user.getHp(), user.getMana(), user.getDirection(), user.getScore(), user.getState());
                             updates.getUpdates().put(update.getUser(), update);
                         }
                         System.out.println("onJoin " + user.getName());
@@ -107,15 +107,31 @@ public class Acceptor extends Thread implements Constants {
 
                                             case 2:
                                                 if (s.getUser().getHp() >= FULL_HP - HEAL) {
-                                                    s.getUser().setHp(100);
-                                                    session.getUser().setHp(100);
-                                                    updates.getUpdates().get(s.getUser().getName()).setHp(100);
+                                                    s.getUser().setHp(FULL_HP);
+                                                    session.getUser().setHp(FULL_HP);
+                                                    updates.getUpdates().get(s.getUser().getName()).setHp(FULL_HP);
                                                 } else if (s.getUser().getHp() <= FULL_HP - HEAL){
                                                     s.getUser().setHp(s.getUser().getHp() + HEAL);
                                                     session.getUser().setHp(s.getUser().getHp() + HEAL);
                                                     updates.getUpdates().get(s.getUser().getName()).setHp(s.getUser().getHp() + HEAL);
                                                 }
-                                                broadcaster.addItemRespawn(i);
+                                                broadcaster.addItemRespawn(i, Constants.TILE_HEAL);
+                                                m[i] = 0;
+                                                broadcaster.sendCorrectMap(i, 0);
+                                                break;
+
+                                            case 3:
+                                                if (s.getUser().getMana() >= FULL_MANA - MANA) {
+                                                    s.getUser().setMana(FULL_MANA);
+                                                    session.getUser().setMana(FULL_MANA);
+                                                    updates.getUpdates().get(s.getUser().getName()).setMana(FULL_MANA);
+                                                } else if (s.getUser().getMana() <= FULL_MANA - MANA){
+                                                    s.getUser().setMana(s.getUser().getMana() + MANA);
+                                                    session.getUser().setMana(s.getUser().getMana() + MANA);
+                                                    updates.getUpdates().get(s.getUser().getName()).setMana(s.getUser().getMana() + MANA);
+                                                }
+
+                                                broadcaster.addItemRespawn(i, Constants.TILE_MANA);
                                                 m[i] = 0;
                                                 broadcaster.sendCorrectMap(i, 0);
                                                 break;
@@ -164,18 +180,79 @@ public class Acceptor extends Thread implements Constants {
                             }
 
                             if (isAttacked) {
-                                other.damaged();
+                                other.hit();
                                 user.attack();
                                 updates.getUpdates().get(other.getName()).setHp(other.getHp() - Constants.DAMAGE);
                                 updates.getUpdates().get(user.getName()).setScore(user.getScore() + Constants.HIT_SCORE);
                                 System.out.println("hit");
-                                broadcaster.sendHit(user.getName(), other.getName());
+                                broadcaster.sendHit(user.getName(), other.getName(), DAMAGE);
                                 isAttacked = false;
                             }
 
                             if (other.getHp() <= DAMAGE) {
                                 System.out.println("Kill");
 
+                                user.killed();
+                                broadcaster.sendKill(user.getName(), other.getName());
+                                updates.getUpdates().get(other.getName()).killed();
+                                respawn(other, s);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onSpecial(Session session) {
+                        if (session.getUser().getMana() < 30) {
+                            return;
+                        }
+                        System.out.println("onSpecial");
+                        User user = session.getUser();
+                        user.setState("SPECIAL");
+                        user.setMana(user.getMana() - SPECIAL_MANA);
+                        updates.getUpdates().get(session.getUser().getName()).setState("SPECIAL");
+                        updates.getUpdates().get(session.getUser().getName()).setMana(session.getUser().getMana());
+                        Vector2D userPos = new Vector2D(user.getX(), user.getY());
+                        Boolean isAttacked = false;
+                        List<Session> others = new ArrayList<>(sessions);
+                        others.remove(session);
+
+                        for (Session s : others) {
+                            User other = s.getUser();
+                            Vector2D otherPos = new Vector2D(other.getX(), other.getY());
+
+                            float diffX = userPos.x - otherPos.x;
+                            float diffY = userPos.y - otherPos.y;
+
+                            if (user.getDirection().equals(PLAYER_DOWN)
+                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2.5f
+                                    && diffY < 0) {
+                                isAttacked = true;
+                            } else if (user.getDirection().equals(PLAYER_UP)
+                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2.5f
+                                    && diffY > 0) {
+                                isAttacked = true;
+                            } else if (user.getDirection().equals(PLAYER_RIGHT)
+                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2.5f
+                                    && diffX < 0) {
+                                isAttacked = true;
+                            } else if (user.getDirection().equals(PLAYER_LEFT)
+                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2.5f
+                                    && diffX > 0) {
+                                isAttacked = true;
+                            }
+
+                            if (isAttacked) {
+                                other.specialHit();
+                                user.attack();
+                                updates.getUpdates().get(other.getName()).setHp(other.getHp() - Constants.SPECIAL_DAMAGE);
+                                updates.getUpdates().get(user.getName()).setScore(user.getScore() + Constants.HIT_SCORE);
+                                System.out.println("hit");
+                                broadcaster.sendHit(user.getName(), other.getName(), SPECIAL_DAMAGE);
+                                isAttacked = false;
+                            }
+
+                            if (other.getHp() <= DAMAGE) {
+                                System.out.println("Kill");
                                 user.killed();
                                 broadcaster.sendKill(user.getName(), other.getName());
                                 updates.getUpdates().get(other.getName()).killed();
@@ -193,8 +270,8 @@ public class Acceptor extends Thread implements Constants {
                     @Override
                     public void onSetImage(Session session1, Image image) {
                         updates.getUpdates().get(session.getUser().getName()).setCharacterImage(image.getCharacterImage());
-                    }
 
+                    }
                 });
                 addSession(session);
                 session.start();
@@ -207,10 +284,10 @@ public class Acceptor extends Thread implements Constants {
     private void respawn(User user, Session session) {
         int characterImage = user.getCharacterImage();
         user = new User((float) (Math.random() * 600), (float) (Math.random() * 600), user.getName(),
-                Constants.PLAYER_DOWN, 100, user.getScore(), USER_STOP);
+                Constants.PLAYER_DOWN, 100, 100, user.getScore(), USER_STOP);
         user.setCharacterImage(characterImage);
         Update update = new Update(user.getName(), user.getX(), user.getY(),
-                user.getHp(), user.getDirection(), user.getScore(), user.getState());
+                user.getHp(), user.getMana(), user.getDirection(), user.getScore(), user.getState());
         update.setCharacterImage(characterImage);
         updates.getUpdates().replace(user.getName(), update);
         session.setUser(user);

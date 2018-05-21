@@ -5,6 +5,7 @@ public class Update {
     private float x;
     private float y;
     private int hp;
+    private int mana;
     private String direction;
     private int score;
     private String state;
@@ -22,12 +23,13 @@ public class Update {
         speed = Constants.PLAYER_SPEED;
     }
 
-    public Update(String user, float x, float y, int hp,
+    public Update(String user, float x, float y, int hp, int mana,
                   String direction, int score, String state) {
         this.user = user;
         this.x = x;
         this.y = y;
         this.hp = hp;
+        this.mana = mana;
         this.direction = direction;
         this.score = score;
         this.state = state;
@@ -108,5 +110,13 @@ public class Update {
 
     public void setCharacterImage(int characterImage) {
         this.characterImage = characterImage;
+    }
+
+    public int getMana() {
+        return mana;
+    }
+
+    public void setMana(int mana) {
+        this.mana = mana;
     }
 }

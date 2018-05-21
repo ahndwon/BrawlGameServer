@@ -10,6 +10,7 @@ public class Map implements Constants {
         }
         shuffleHP();
         shuffleSwamp();
+        shuffleMana();
     }
 
     private void shuffleHP() {
@@ -21,6 +22,17 @@ public class Map implements Constants {
 
         shuffle(items);
         insertItem(items, TILE_HEAL, 64);
+    }
+
+    private void shuffleMana() {
+        int[] items = new int[map.length];
+
+        for (int i = 0; i < map.length; i++) {
+            items[i] = i;
+        }
+
+        shuffle(items);
+        insertItem(items, TILE_MANA, 16);
     }
 
     private void shuffleSwamp() {

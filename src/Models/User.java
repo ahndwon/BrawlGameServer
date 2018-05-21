@@ -7,6 +7,7 @@ public class User implements Constants {
     private String name;
     private String direction;
     private int hp;
+    private int mana;
     private int score;
     private String state;
     private int speed;
@@ -16,12 +17,13 @@ public class User implements Constants {
         speed = Constants.PLAYER_SPEED;
     }
 
-    public User(float x, float y, String name, String direction, int hp, int score, String state) {
+    public User(float x, float y, String name, String direction, int hp, int mana, int score, String state) {
         this.x = x;
         this.y = y;
         this.name = name;
         this.direction = direction;
         this.hp = hp;
+        this.mana = mana;
         this.score = score;
         this.state = state;
         this.speed = Constants.PLAYER_SPEED;
@@ -67,12 +69,17 @@ public class User implements Constants {
         this.name = name;
     }
 
-    public void attack() {
+    public void
+    attack() {
         score += HIT_SCORE;
     }
 
-    public void damaged() {
+    public void hit() {
         hp -= 10;
+    }
+
+    public void specialHit() {
+        hp -= 30;
     }
 
     public int getHp() {
@@ -109,5 +116,13 @@ public class User implements Constants {
 
     public void setCharacterImage(int characterImage) {
         this.characterImage = characterImage;
+    }
+
+    public int getMana() {
+        return mana;
+    }
+
+    public void setMana(int mana) {
+        this.mana = mana;
     }
 }

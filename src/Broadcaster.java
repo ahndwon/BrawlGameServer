@@ -18,9 +18,18 @@ import java.util.*;
 public class Broadcaster extends Thread implements Constants {
     private List<Session> sessions;
     private Updates updates;
-    private HashMap<Integer, Integer> itemRespawn;
+    private HashMap<Integer, Item> itemRespawn;
     private Map map;
 
+    private class Item {
+        int type;
+        int time;
+
+        Item(int type, int time) {
+            this.type = type;
+            this.time = time;
+        }
+    }
 
     Broadcaster(List<Session> sessions, Updates updates, Map map) {
         this.sessions = sessions;
@@ -48,12 +57,12 @@ public class Broadcaster extends Thread implements Constants {
         return jsonObject;
     }
 
-    public void sendHit(String from, String to) {
+    public void sendHit(String from, String to, int damage) {
         JsonObject jsonObject = new JsonObject();
         JsonObject body = new JsonObject();
         body.add("from", new JsonPrimitive(from));
         body.add("to", new JsonPrimitive(to));
-        body.add("damage", new JsonPrimitive(Constants.DAMAGE));
+        body.add("damage", new JsonPrimitive(damage));
         jsonObject.add("type", new JsonPrimitive("Hit"));
         jsonObject.add("body", body);
         broadcast(jsonObject.toString());
@@ -105,11 +114,13 @@ public class Broadcaster extends Thread implements Constants {
 
                 for (Integer index : itemIndex) {
                     System.out.println("index :" + index + ", " + itemRespawn.get(index));
-                    itemRespawn.replace(index, itemRespawn.get(index) - 10);
-                    if (itemRespawn.get(index) < 0) {
-                        map.getMap()[index] = 2;
+                    Item item = itemRespawn.get(index);
+                    item.time += -10;
+//                    itemRespawn.replace(index, item);
+                    if (item.time < 0) {
+                        map.getMap()[index] = item.type;
 //                        sendMap();
-                        sendCorrectMap(index, 2);
+                        sendCorrectMap(index, item.type);
                         itemRespawn.remove(index);
                     }
                 }
@@ -122,8 +133,8 @@ public class Broadcaster extends Thread implements Constants {
         this.sessions = sessions;
     }
 
-    public void addItemRespawn(int index) {
-        itemRespawn.put(index, 1000);
+    public void addItemRespawn(int index, int type) {
+        itemRespawn.put(index, new Item(type , 1000));
     }
 
     public void sendMap() {
