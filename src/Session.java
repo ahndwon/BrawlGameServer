@@ -123,6 +123,19 @@ public class Session extends Thread {
         }
     }
 
+    public void send(JsonObject jsonObject) {
+        Gson gson = new GsonBuilder().create();
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(2);
+        byteBuffer.putShort((short) gson.toJson(jsonObject).getBytes().length);
+        try {
+            socket.getOutputStream().write(byteBuffer.array());
+            socket.getOutputStream().write(gson.toJson(jsonObject).getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void sendMap(Map map) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Map.class, new MapTypeAdapter())

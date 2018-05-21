@@ -1,5 +1,6 @@
 import Models.*;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -47,9 +48,15 @@ public class Acceptor extends Thread implements Constants {
                 session.setSessionListener(new SessionListener() {
                     @Override
                     public void onJoin(User user) {
-                        Update update = new Update(user.getName(), user.getX(), user.getY(),
-                                user.getHp(), user.getDirection(), user.getScore(), user.getState());
-                        updates.getUpdates().putIfAbsent(update.getUser(), update);
+                        if (updates.getUpdates().containsKey(user.getName())) {
+                            session.send(broadcaster.sendReject());
+                            sessions.remove(session);
+
+                        } else {
+                            Update update = new Update(user.getName(), user.getX(), user.getY(),
+                                    user.getHp(), user.getDirection(), user.getScore(), user.getState());
+                            updates.getUpdates().put(update.getUser(), update);
+                        }
                         System.out.println("onJoin " + user.getName());
                     }
 
@@ -186,9 +193,7 @@ public class Acceptor extends Thread implements Constants {
                     @Override
                     public void onSetImage(Session session1, Image image) {
                         updates.getUpdates().get(session.getUser().getName()).setCharacterImage(image.getCharacterImage());
-
                     }
-
 
                 });
                 addSession(session);
@@ -200,10 +205,13 @@ public class Acceptor extends Thread implements Constants {
     }
 
     private void respawn(User user, Session session) {
+        int characterImage = user.getCharacterImage();
         user = new User((float) (Math.random() * 600), (float) (Math.random() * 600), user.getName(),
                 Constants.PLAYER_DOWN, 100, user.getScore(), USER_STOP);
+        user.setCharacterImage(characterImage);
         Update update = new Update(user.getName(), user.getX(), user.getY(),
                 user.getHp(), user.getDirection(), user.getScore(), user.getState());
+        update.setCharacterImage(characterImage);
         updates.getUpdates().replace(user.getName(), update);
         session.setUser(user);
     }

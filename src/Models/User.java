@@ -25,7 +25,6 @@ public class User implements Constants {
         this.score = score;
         this.state = state;
         this.speed = Constants.PLAYER_SPEED;
-        this.characterImage = 0;
     }
 
     public void setHp(int hp) {

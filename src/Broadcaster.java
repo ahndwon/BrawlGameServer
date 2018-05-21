@@ -39,13 +39,13 @@ public class Broadcaster extends Thread implements Constants {
         broadcast(jsonObject.toString());
     }
 
-    public void sendReject() {
+    public JsonObject sendReject() {
         JsonObject jsonObject = new JsonObject();
         JsonObject body = new JsonObject();
         body.add("warning", new JsonPrimitive("name already used"));
         jsonObject.add("type", new JsonPrimitive("Reject"));
         jsonObject.add("body", body);
-        broadcast(jsonObject.toString());
+        return jsonObject;
     }
 
     public void sendHit(String from, String to) {
@@ -65,6 +65,7 @@ public class Broadcaster extends Thread implements Constants {
                 .create();
         broadcast(gson.toJson(updates));
     }
+
 
     private void broadcast(String message) {
         for (Session session : sessions) {

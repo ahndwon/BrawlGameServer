@@ -9,7 +9,7 @@ public class Update {
     private int score;
     private String state;
     private int speed;
-    private int characterImage;
+    private int characterImage = 10;
 
     public Update() {
 //        user = null;
