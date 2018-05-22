@@ -1,6 +1,5 @@
 import Models.*;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -40,6 +39,7 @@ public class Acceptor extends Thread implements Constants {
             ServerSocket serverSocket = new ServerSocket(port);
             serverSocket.setReuseAddress(true);
 
+
             while (true) {
                 Socket socket = serverSocket.accept();
                 System.out.println(socket.getRemoteSocketAddress() + " connected");
@@ -54,7 +54,8 @@ public class Acceptor extends Thread implements Constants {
 
                         } else {
                             Update update = new Update(user.getName(), user.getX(), user.getY(),
-                                    user.getHp(), user.getMana(), user.getDirection(), user.getScore(), user.getState());
+                                    user.getHp(), user.getMana(), user.getStamina(),
+                                    user.getDirection(), user.getScore(), user.getState());
                             updates.getUpdates().put(update.getUser(), update);
                         }
                         System.out.println("onJoin " + user.getName());
@@ -62,8 +63,8 @@ public class Acceptor extends Thread implements Constants {
 
                     @Override
                     public void onDisconnect(Session session) {
-                        updates.getUpdates().remove(session.getName());
-                        sessions.remove(session);
+                        updates.getUpdates().remove(session.getUser().getName());
+                        removeSession(session);
                         broadcaster.update(sessions);
                     }
 
@@ -83,62 +84,66 @@ public class Acceptor extends Thread implements Constants {
                                 session.getUser().setSpeed(PLAYER_SPEED);
                                 updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED);
 
-                                for (int i = 0; i < m.length; i++) {
+//                                for (int i = 0; i < m.length; i++) {
+//
+//                                    if (s.getUser().getX() < 0) {
+//                                        s.getUser().setX(s.getUser().getX() + Constants.MAPSIZE);
+//                                    } else if (s.getUser().getX() > Constants.MAPSIZE) {
+//                                        s.getUser().setX(s.getUser().getX() - Constants.MAPSIZE);
+//                                    }
+//
+//                                    if (s.getUser().getY() < 0) {
+//                                        s.getUser().setY(s.getUser().getY() + Constants.MAPSIZE);
+//                                    } else if (s.getUser().getY() > Constants.MAPSIZE) {
+//                                        s.getUser().setY(s.getUser().getY() - Constants.MAPSIZE);
+//                                    }
+//
+//                                    if (Util.getIndexByPos((int) s.getUser().getX(), (int) s.getUser().getY()) == i) {
+//                                        switch (m[i]) {
+//                                            case 1:
+//                                                s.getUser().setSpeed(PLAYER_SPEED_SLOW);
+//                                                session.getUser().setSpeed(PLAYER_SPEED_SLOW);
+//                                                updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED_SLOW);
+//                                                break;
+//
+//                                            case 2:
+//                                                if (s.getUser().getHp() >= FULL_HP - HEAL) {
+//                                                    s.getUser().setHp(FULL_HP);
+//                                                    session.getUser().setHp(FULL_HP);
+//                                                    updates.getUpdates().get(s.getUser().getName()).setHp(FULL_HP);
+//                                                } else if (s.getUser().getHp() <= FULL_HP - HEAL){
+////                                                    s.getUser().setHp(s.getUser().getHp() + HEAL);
+//                                                    updates.getUpdates().get(s.getUser().getName()).setHp(s.getUser().getHp() + HEAL);
+//                                                    session.getUser().setHp(s.getUser().getHp() + HEAL);
+//                                                }
+//                                                broadcaster.addItemRespawn(i, Constants.TILE_HEAL);
+//                                                m[i] = 0;
+//                                                broadcaster.sendCorrectMap(i, 0);
+//                                                break;
+//
+//                                            case 3:
+//                                                if (s.getUser().getMana() >= FULL_MANA - MANA) {
+//                                                    s.getUser().setMana(FULL_MANA);
+//                                                    session.getUser().setMana(FULL_MANA);
+//                                                    updates.getUpdates().get(s.getUser().getName()).setMana(FULL_MANA);
+//                                                } else if (s.getUser().getMana() <= FULL_MANA - MANA){
+////                                                    s.getUser().setMana(s.getUser().getMana() + MANA);
+//                                                    updates.getUpdates().get(s.getUser().getName()).setMana(s.getUser().getMana() + MANA);
+//                                                    session.getUser().setMana(s.getUser().getMana() + MANA);
+//                                                }
+//                                                broadcaster.addItemRespawn(i, Constants.TILE_MANA);
+//                                                m[i] = 0;
+//                                                broadcaster.sendCorrectMap(i, 0);
+//                                                break;
+//                                        }
+//                                    }
+//                                }
 
-                                    if (s.getUser().getX() < 0) {
-                                        s.getUser().setX(s.getUser().getX() + Constants.MAPSIZE);
-                                    } else if (s.getUser().getX() > Constants.MAPSIZE) {
-                                        s.getUser().setX(s.getUser().getX() - Constants.MAPSIZE);
-                                    }
-
-                                    if (s.getUser().getY() < 0) {
-                                        s.getUser().setY(s.getUser().getY() + Constants.MAPSIZE);
-                                    } else if (s.getUser().getY() > Constants.MAPSIZE) {
-                                        s.getUser().setY(s.getUser().getY() - Constants.MAPSIZE);
-                                    }
-
-                                    if (Util.getIndexByPos((int) s.getUser().getX(), (int) s.getUser().getY()) == i) {
-                                        switch (m[i]) {
-                                            case 1:
-                                                s.getUser().setSpeed(PLAYER_SPEEDSLOW);
-                                                session.getUser().setSpeed(PLAYER_SPEEDSLOW);
-                                                updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEEDSLOW);
-                                                break;
-
-                                            case 2:
-                                                if (s.getUser().getHp() >= FULL_HP - HEAL) {
-                                                    s.getUser().setHp(FULL_HP);
-                                                    session.getUser().setHp(FULL_HP);
-                                                    updates.getUpdates().get(s.getUser().getName()).setHp(FULL_HP);
-                                                } else if (s.getUser().getHp() <= FULL_HP - HEAL){
-                                                    s.getUser().setHp(s.getUser().getHp() + HEAL);
-                                                    session.getUser().setHp(s.getUser().getHp() + HEAL);
-                                                    updates.getUpdates().get(s.getUser().getName()).setHp(s.getUser().getHp() + HEAL);
-                                                }
-                                                broadcaster.addItemRespawn(i, Constants.TILE_HEAL);
-                                                m[i] = 0;
-                                                broadcaster.sendCorrectMap(i, 0);
-                                                break;
-
-                                            case 3:
-                                                if (s.getUser().getMana() >= FULL_MANA - MANA) {
-                                                    s.getUser().setMana(FULL_MANA);
-                                                    session.getUser().setMana(FULL_MANA);
-                                                    updates.getUpdates().get(s.getUser().getName()).setMana(FULL_MANA);
-                                                } else if (s.getUser().getMana() <= FULL_MANA - MANA){
-                                                    s.getUser().setMana(s.getUser().getMana() + MANA);
-                                                    session.getUser().setMana(s.getUser().getMana() + MANA);
-                                                    updates.getUpdates().get(s.getUser().getName()).setMana(s.getUser().getMana() + MANA);
-                                                }
-
-                                                broadcaster.addItemRespawn(i, Constants.TILE_MANA);
-                                                m[i] = 0;
-                                                broadcaster.sendCorrectMap(i, 0);
-                                                break;
-                                        }
-                                    }
-                                }
-                                moveUsers(direction, s);
+                                updates.getUpdates().get(s.getUser().getName()).setDirection(direction);
+                                Update update = updates.getUpdates().get(s.getUser().getName());
+                                update.setState(USER_MOVE);
+                                update.setDirection(direction);
+//                                moveUsers(direction, s);
                             }
                         }
                     }
@@ -272,6 +277,14 @@ public class Acceptor extends Thread implements Constants {
                         updates.getUpdates().get(session.getUser().getName()).setCharacterImage(image.getCharacterImage());
 
                     }
+
+                    @Override
+                    public void onSwift(Session session) {
+                        session.getUser().setSpeed(Constants.PLAYER_SPEED_SWIFT);
+                        session.getUser().setState("SWIFT");
+                        updates.getUpdates().get(session.getUser().getName()).setSpeed(PLAYER_SPEED_SWIFT);
+                        updates.getUpdates().get(session.getUser().getName()).setState("SWIFT");
+                    }
                 });
                 addSession(session);
                 session.start();
@@ -283,50 +296,54 @@ public class Acceptor extends Thread implements Constants {
 
     private void respawn(User user, Session session) {
         int characterImage = user.getCharacterImage();
-        user = new User((float) (Math.random() * 600), (float) (Math.random() * 600), user.getName(),
-                Constants.PLAYER_DOWN, 100, 100, user.getScore(), USER_STOP);
+        user = new User((float) (Math.random() * 600), (float) (Math.random() * 600),
+                user.getName(), Constants.PLAYER_DOWN, 100, 100, 100,
+                user.getScore(), USER_STOP);
         user.setCharacterImage(characterImage);
         Update update = new Update(user.getName(), user.getX(), user.getY(),
-                user.getHp(), user.getMana(), user.getDirection(), user.getScore(), user.getState());
+                user.getHp(), user.getMana(), user.getStamina(),
+                user.getDirection(), user.getScore(), user.getState());
         update.setCharacterImage(characterImage);
         updates.getUpdates().replace(user.getName(), update);
         session.setUser(user);
     }
 
-    private void moveUsers(String direction, Session s) {
-        switch (direction) {
-            case "UP":
-                s.getUser().setY(s.getUser().getY() - s.getUser().getSpeed());
-                break;
-            case "LEFT":
-                s.getUser().setX(s.getUser().getX() - s.getUser().getSpeed());
-                break;
-            case "RIGHT":
-                s.getUser().setX(s.getUser().getX() + s.getUser().getSpeed());
-                break;
-            case "DOWN":
-                s.getUser().setY(s.getUser().getY() + s.getUser().getSpeed());
-                break;
-        }
+//    private void moveUsers(String direction, Session s) {
+//        switch (direction) {
+//            case "UP":
+//                s.getUser().setY(s.getUser().getY() - s.getUser().getSpeed());
+//                break;
+//            case "LEFT":
+//                s.getUser().setX(s.getUser().getX() - s.getUser().getSpeed());
+//                break;
+//            case "RIGHT":
+//                s.getUser().setX(s.getUser().getX() + s.getUser().getSpeed());
+//                break;
+//            case "DOWN":
+//                s.getUser().setY(s.getUser().getY() + s.getUser().getSpeed());
+//                break;
+//        }
+//
+//        updates.getUpdates().get(s.getUser().getName()).setDirection(direction);
+//        Update update = updates.getUpdates().get(s.getUser().getName());
+//        update.setState(USER_MOVE);
+//        update.setDirection(direction);
+//
+//        switch (direction) {
+//            case "UP":
+//                update.setY(update.getY() - update.getSpeed());
+//                break;
+//            case "LEFT":
+//                update.setX(update.getX() - update.getSpeed());
+//                break;
+//            case "RIGHT":
+//                update.setX(update.getX() + update.getSpeed());
+//                break;
+//            case "DOWN":
+//                update.setY(update.getY() + update.getSpeed());
+//                break;
+//        }
+//    }
 
-        updates.getUpdates().get(s.getUser().getName()).setDirection(direction);
-        Update update = updates.getUpdates().get(s.getUser().getName());
-        update.setState(USER_MOVE);
-        update.setDirection(direction);
 
-        switch (direction) {
-            case "UP":
-                update.setY(update.getY() - update.getSpeed());
-                break;
-            case "LEFT":
-                update.setX(update.getX() - update.getSpeed());
-                break;
-            case "RIGHT":
-                update.setX(update.getX() + update.getSpeed());
-                break;
-            case "DOWN":
-                update.setY(update.getY() + update.getSpeed());
-                break;
-        }
-    }
 }

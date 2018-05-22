@@ -1,15 +1,16 @@
 package Models;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Updates {
-    private HashMap<String, Update> updates;
+    private ConcurrentHashMap<String, Update> updates;
 
     public Updates() {
-        this.updates = new HashMap<>();
+        this.updates = new ConcurrentHashMap<>();
     }
 
-    public HashMap<String, Update> getUpdates() {
+    public ConcurrentHashMap<String, Update> getUpdates() {
         return updates;
     }
 }

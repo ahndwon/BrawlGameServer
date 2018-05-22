@@ -22,6 +22,7 @@ public class UpdateTypeAdapter extends TypeAdapter<Update> {
         writer.name("y").value(update.getY());
         writer.name("hp").value(update.getHp());
         writer.name("mana").value(update.getMana());
+        writer.name("stamina").value(update.getStamina());
         writer.name("direction").value(update.getDirection());
         writer.name("score").value(update.getScore());
         writer.name("state").value(update.getState());
@@ -68,6 +69,9 @@ public class UpdateTypeAdapter extends TypeAdapter<Update> {
                     break;
                 case "mana":
                     update.setMana(reader.nextInt());
+                    break;
+                case "stamina":
+                    update.setStamina(reader.nextInt());
                     break;
                 case "direction":
                     update.setDirection(reader.nextString());

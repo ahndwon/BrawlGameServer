@@ -1,7 +1,6 @@
 
-import Models.Constants;
+import Models.*;
 import Models.Map;
-import Models.Updates;
 import TypeAdapter.MapTypeAdapter;
 import TypeAdapter.UpdatesTypeAdapter;
 import com.google.gson.Gson;
@@ -124,6 +123,14 @@ public class Broadcaster extends Thread implements Constants {
                         itemRespawn.remove(index);
                     }
                 }
+
+                for (Session session :
+                        sessions) {
+//                    System.out.println("test2");
+                    if (session.getUser() != null) {
+                            moveUsers(session.getUser().getDirection(), session);
+                    }
+                }
             }
         }, 0, 100);
 
@@ -151,5 +158,114 @@ public class Broadcaster extends Thread implements Constants {
         jsonObject.addProperty("index", index);
         jsonObject.addProperty("message", message);
         broadcast(jsonObject.toString());
+    }
+
+    private void moveUsers(String direction, Session s) {
+        if (s.getUser().getStamina() > 5 &&
+                (s.getUser().getState().equals("MOVE") || s.getUser().getState().equals("SWIFT"))) {
+            updates.getUpdates().get(s.getUser().getName()).setDirection(direction);
+            Update update = updates.getUpdates().get(s.getUser().getName());
+
+            switch (direction) {
+                case "UP":
+                    System.out.println("MOVE UP");
+                    s.getUser().setY(s.getUser().getY() - s.getUser().getSpeed());
+                    update.setY(update.getY() - update.getSpeed());
+                    break;
+                case "LEFT":
+                    System.out.println("MOVE LEFT");
+                    s.getUser().setX(s.getUser().getX() - s.getUser().getSpeed());
+                    update.setX(update.getX() - update.getSpeed());
+                    break;
+                case "RIGHT":
+                    System.out.println("MOVE RIGHT");
+                    s.getUser().setX(s.getUser().getX() + s.getUser().getSpeed());
+                    update.setX(update.getX() + update.getSpeed());
+                    break;
+                case "DOWN":
+                    System.out.println("MOVE DOWN");
+                    s.getUser().setY(s.getUser().getY() + s.getUser().getSpeed());
+                    update.setY(update.getY() + update.getSpeed());
+                    break;
+            }
+
+            int[] m = map.getMap();
+
+            for (int i = 0; i < m.length; i++) {
+
+                if (s.getUser().getX() < 0) {
+                    s.getUser().setX(s.getUser().getX() + Constants.MAPSIZE);
+                } else if (s.getUser().getX() > Constants.MAPSIZE) {
+                    s.getUser().setX(s.getUser().getX() - Constants.MAPSIZE);
+                }
+
+                if (s.getUser().getY() < 0) {
+                    s.getUser().setY(s.getUser().getY() + Constants.MAPSIZE);
+                } else if (s.getUser().getY() > Constants.MAPSIZE) {
+                    s.getUser().setY(s.getUser().getY() - Constants.MAPSIZE);
+                }
+
+                if (Util.getIndexByPos((int) s.getUser().getX(), (int) s.getUser().getY()) == i) {
+                    switch (m[i]) {
+                        case 1:
+                            s.getUser().setSpeed(PLAYER_SPEED_SLOW);
+//                            session.getUser().setSpeed(PLAYER_SPEED_SLOW);
+                            updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED_SLOW);
+                            break;
+
+                        case 2:
+                            if (s.getUser().getHp() >= FULL_HP - HEAL) {
+                                s.getUser().setHp(FULL_HP);
+//                                session.getUser().setHp(FULL_HP);
+                                updates.getUpdates().get(s.getUser().getName()).setHp(FULL_HP);
+                            } else if (s.getUser().getHp() <= FULL_HP - HEAL){
+//                                                    s.getUser().setHp(s.getUser().getHp() + HEAL);
+                                updates.getUpdates().get(s.getUser().getName()).setHp(s.getUser().getHp() + HEAL);
+//                                session.getUser().setHp(s.getUser().getHp() + HEAL);
+                            }
+                            addItemRespawn(i, Constants.TILE_HEAL);
+                            m[i] = 0;
+                            sendCorrectMap(i, 0);
+                            break;
+
+                        case 3:
+                            if (s.getUser().getMana() >= FULL_MANA - MANA) {
+                                s.getUser().setMana(FULL_MANA);
+//                                session.getUser().setMana(FULL_MANA);
+                                updates.getUpdates().get(s.getUser().getName()).setMana(FULL_MANA);
+                            } else if (s.getUser().getMana() <= FULL_MANA - MANA){
+//                                                    s.getUser().setMana(s.getUser().getMana() + MANA);
+                                updates.getUpdates().get(s.getUser().getName()).setMana(s.getUser().getMana() + MANA);
+//                                session.getUser().setMana(s.getUser().getMana() + MANA);
+                            }
+                            addItemRespawn(i, Constants.TILE_MANA);
+                            m[i] = 0;
+                            sendCorrectMap(i, 0);
+                            break;
+                    }
+                }
+            }
+        }
+        useStamina(s);
+        recoverStamina(s);
+    }
+
+    private void useStamina(Session s) {
+        User user = s.getUser();
+        Update update = updates.getUpdates().get(s.getUser().getName());
+        if (user.getState().equals("SWIFT") && user.getStamina() > 1) {
+            user.setStamina(user.getStamina() - 2);
+            update.setStamina(update.getStamina() - 2);
+        }
+    }
+
+    private void recoverStamina(Session s) {
+        User user = s.getUser();
+        Update update = updates.getUpdates().get(s.getUser().getName());
+        if (user.getStamina() < 100 &&
+                (user.getState().equals("STOP") || user.getState().equals("MOVE"))) {
+            user.setStamina(user.getStamina() + 1);
+            update.setStamina(update.getStamina() + 1);
+        }
     }
 }
