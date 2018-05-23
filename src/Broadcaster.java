@@ -218,7 +218,7 @@ public class Broadcaster extends Thread implements Constants {
                                 s.getUser().setHp(FULL_HP);
 //                                session.getUser().setHp(FULL_HP);
                                 updates.getUpdates().get(s.getUser().getName()).setHp(FULL_HP);
-                            } else if (s.getUser().getHp() <= FULL_HP - HEAL){
+                            } else if (s.getUser().getHp() <= FULL_HP - HEAL) {
 //                                                    s.getUser().setHp(s.getUser().getHp() + HEAL);
                                 updates.getUpdates().get(s.getUser().getName()).setHp(s.getUser().getHp() + HEAL);
 //                                session.getUser().setHp(s.getUser().getHp() + HEAL);
@@ -233,7 +233,7 @@ public class Broadcaster extends Thread implements Constants {
                                 s.getUser().setMana(FULL_MANA);
 //                                session.getUser().setMana(FULL_MANA);
                                 updates.getUpdates().get(s.getUser().getName()).setMana(FULL_MANA);
-                            } else if (s.getUser().getMana() <= FULL_MANA - MANA){
+                            } else if (s.getUser().getMana() <= FULL_MANA - MANA) {
 //                                                    s.getUser().setMana(s.getUser().getMana() + MANA);
                                 updates.getUpdates().get(s.getUser().getName()).setMana(s.getUser().getMana() + MANA);
 //                                session.getUser().setMana(s.getUser().getMana() + MANA);
@@ -241,6 +241,16 @@ public class Broadcaster extends Thread implements Constants {
                             addItemRespawn(i, Constants.TILE_MANA);
                             m[i] = 0;
                             sendCorrectMap(i, 0);
+                            break;
+                        default:
+                            if (s.getUser().getState().equals("SWIFT")) {
+                                s.getUser().setSpeed(Constants.PLAYER_SPEED_SWIFT);
+                                updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED_SWIFT);
+                            }
+                            if (s.getUser().getState().equals("MOVE")) {
+                                s.getUser().setSpeed(Constants.PLAYER_SPEED);
+                                updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED);
+                            }
                             break;
                     }
                 }
