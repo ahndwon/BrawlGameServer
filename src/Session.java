@@ -84,7 +84,7 @@ public class Session extends Thread {
                                     .create();
                             Join j = gson.fromJson(state, Join.class);
                             user = new User((float) (Math.random() * MAPSIZE), (float) (Math.random() * MAPSIZE), j.getUser(),
-                                    Constants.PLAYER_DOWN, 100, 100,100, 0, USER_STOP);
+                                    Constants.PLAYER_DOWN, 100, 100,1000, 0, USER_STOP);
                             listener.onJoin(user);
                             break;
                         case "Move":
@@ -93,8 +93,6 @@ public class Session extends Thread {
                                     .registerTypeAdapter(Move.class, new MoveTypeAdapter())
                                     .create();
                             Move m = gson.fromJson(state, Move.class);
-//                            user.setDirection(m.getDirection());
-//                            user.setState(Constants.USER_MOVE);
                             listener.onMove(this, m);
                             break;
                         case "Attack":

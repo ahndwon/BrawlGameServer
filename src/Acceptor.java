@@ -83,62 +83,6 @@ public class Acceptor extends Thread implements Constants {
                                 s.getUser().setSpeed(PLAYER_SPEED);
                                 session.getUser().setSpeed(PLAYER_SPEED);
                                 updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED);
-
-//                                for (int i = 0; i < m.length; i++) {
-//
-//                                    if (s.getUser().getX() < 0) {
-//                                        s.getUser().setX(s.getUser().getX() + Constants.MAPSIZE);
-//                                    } else if (s.getUser().getX() > Constants.MAPSIZE) {
-//                                        s.getUser().setX(s.getUser().getX() - Constants.MAPSIZE);
-//                                    }
-//
-//                                    if (s.getUser().getY() < 0) {
-//                                        s.getUser().setY(s.getUser().getY() + Constants.MAPSIZE);
-//                                    } else if (s.getUser().getY() > Constants.MAPSIZE) {
-//                                        s.getUser().setY(s.getUser().getY() - Constants.MAPSIZE);
-//                                    }
-//
-//                                    if (Util.getIndexByPos((int) s.getUser().getX(), (int) s.getUser().getY()) == i) {
-//                                        switch (m[i]) {
-//                                            case 1:
-//                                                s.getUser().setSpeed(PLAYER_SPEED_SLOW);
-//                                                session.getUser().setSpeed(PLAYER_SPEED_SLOW);
-//                                                updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED_SLOW);
-//                                                break;
-//
-//                                            case 2:
-//                                                if (s.getUser().getHp() >= FULL_HP - HEAL) {
-//                                                    s.getUser().setHp(FULL_HP);
-//                                                    session.getUser().setHp(FULL_HP);
-//                                                    updates.getUpdates().get(s.getUser().getName()).setHp(FULL_HP);
-//                                                } else if (s.getUser().getHp() <= FULL_HP - HEAL){
-////                                                    s.getUser().setHp(s.getUser().getHp() + HEAL);
-//                                                    updates.getUpdates().get(s.getUser().getName()).setHp(s.getUser().getHp() + HEAL);
-//                                                    session.getUser().setHp(s.getUser().getHp() + HEAL);
-//                                                }
-//                                                broadcaster.addItemRespawn(i, Constants.TILE_HEAL);
-//                                                m[i] = 0;
-//                                                broadcaster.sendCorrectMap(i, 0);
-//                                                break;
-//
-//                                            case 3:
-//                                                if (s.getUser().getMana() >= FULL_MANA - MANA) {
-//                                                    s.getUser().setMana(FULL_MANA);
-//                                                    session.getUser().setMana(FULL_MANA);
-//                                                    updates.getUpdates().get(s.getUser().getName()).setMana(FULL_MANA);
-//                                                } else if (s.getUser().getMana() <= FULL_MANA - MANA){
-////                                                    s.getUser().setMana(s.getUser().getMana() + MANA);
-//                                                    updates.getUpdates().get(s.getUser().getName()).setMana(s.getUser().getMana() + MANA);
-//                                                    session.getUser().setMana(s.getUser().getMana() + MANA);
-//                                                }
-//                                                broadcaster.addItemRespawn(i, Constants.TILE_MANA);
-//                                                m[i] = 0;
-//                                                broadcaster.sendCorrectMap(i, 0);
-//                                                break;
-//                                        }
-//                                    }
-//                                }
-
                                 updates.getUpdates().get(s.getUser().getName()).setDirection(direction);
                                 Update update = updates.getUpdates().get(s.getUser().getName());
                                 update.setState(USER_MOVE);
@@ -185,10 +129,10 @@ public class Acceptor extends Thread implements Constants {
                             }
 
                             if (isAttacked) {
-                                other.hit();
-                                user.attack();
                                 updates.getUpdates().get(other.getName()).setHp(other.getHp() - Constants.DAMAGE);
                                 updates.getUpdates().get(user.getName()).setScore(user.getScore() + Constants.HIT_SCORE);
+                                other.hit();
+                                user.attack();
                                 System.out.println("hit");
                                 broadcaster.sendHit(user.getName(), other.getName(), DAMAGE);
                                 isAttacked = false;
@@ -297,7 +241,7 @@ public class Acceptor extends Thread implements Constants {
     private void respawn(User user, Session session) {
         int characterImage = user.getCharacterImage();
         user = new User((float) (Math.random() * 600), (float) (Math.random() * 600),
-                user.getName(), Constants.PLAYER_DOWN, 100, 100, 100,
+                user.getName(), Constants.PLAYER_DOWN, 100, 100, 1000,
                 user.getScore(), USER_STOP);
         user.setCharacterImage(characterImage);
         Update update = new Update(user.getName(), user.getX(), user.getY(),
@@ -307,43 +251,4 @@ public class Acceptor extends Thread implements Constants {
         updates.getUpdates().replace(user.getName(), update);
         session.setUser(user);
     }
-
-//    private void moveUsers(String direction, Session s) {
-//        switch (direction) {
-//            case "UP":
-//                s.getUser().setY(s.getUser().getY() - s.getUser().getSpeed());
-//                break;
-//            case "LEFT":
-//                s.getUser().setX(s.getUser().getX() - s.getUser().getSpeed());
-//                break;
-//            case "RIGHT":
-//                s.getUser().setX(s.getUser().getX() + s.getUser().getSpeed());
-//                break;
-//            case "DOWN":
-//                s.getUser().setY(s.getUser().getY() + s.getUser().getSpeed());
-//                break;
-//        }
-//
-//        updates.getUpdates().get(s.getUser().getName()).setDirection(direction);
-//        Update update = updates.getUpdates().get(s.getUser().getName());
-//        update.setState(USER_MOVE);
-//        update.setDirection(direction);
-//
-//        switch (direction) {
-//            case "UP":
-//                update.setY(update.getY() - update.getSpeed());
-//                break;
-//            case "LEFT":
-//                update.setX(update.getX() - update.getSpeed());
-//                break;
-//            case "RIGHT":
-//                update.setX(update.getX() + update.getSpeed());
-//                break;
-//            case "DOWN":
-//                update.setY(update.getY() + update.getSpeed());
-//                break;
-//        }
-//    }
-
-
 }

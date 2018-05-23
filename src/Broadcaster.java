@@ -114,7 +114,7 @@ public class Broadcaster extends Thread implements Constants {
                 for (Integer index : itemIndex) {
 //                    System.out.println("index :" + index + ", " + itemRespawn.get(index));
                     Item item = itemRespawn.get(index);
-                    item.time += -10;
+                    item.time += -1;
 //                    itemRespawn.replace(index, item);
                     if (item.time < 0) {
                         map.getMap()[index] = item.type;
@@ -128,11 +128,11 @@ public class Broadcaster extends Thread implements Constants {
                         sessions) {
 //                    System.out.println("test2");
                     if (session.getUser() != null) {
-                        moveUsers(session.getUser().getDirection(), session);
+                        moveUsers( session);
                     }
                 }
             }
-        }, 0, 100);
+        }, 0, 10);
 
     }
 
@@ -160,32 +160,31 @@ public class Broadcaster extends Thread implements Constants {
         broadcast(jsonObject.toString());
     }
 
-    private void moveUsers(String direction, Session s) {
+    private void moveUsers( Session s) {
         if (s.getUser().getStamina() > 5 &&
                 (s.getUser().getState().equals("MOVE") || s.getUser().getState().equals("SWIFT"))) {
-            updates.getUpdates().get(s.getUser().getName()).setDirection(direction);
             Update update = updates.getUpdates().get(s.getUser().getName());
 
-            switch (direction) {
+            switch (s.getUser().getDirection()) {
                 case "UP":
                     System.out.println("MOVE UP");
-                    s.getUser().setY(s.getUser().getY() - s.getUser().getSpeed());
-                    update.setY(update.getY() - update.getSpeed());
+                    s.getUser().setY(s.getUser().getY() - s.getUser().getSpeed() / 10f);
+                    update.setY(update.getY() - update.getSpeed() / 10f);
                     break;
                 case "LEFT":
                     System.out.println("MOVE LEFT");
-                    s.getUser().setX(s.getUser().getX() - s.getUser().getSpeed());
-                    update.setX(update.getX() - update.getSpeed());
+                    s.getUser().setX(s.getUser().getX() - s.getUser().getSpeed()  / 10f);
+                    update.setX(update.getX() - update.getSpeed()  / 10f);
                     break;
                 case "RIGHT":
                     System.out.println("MOVE RIGHT");
-                    s.getUser().setX(s.getUser().getX() + s.getUser().getSpeed());
-                    update.setX(update.getX() + update.getSpeed());
+                    s.getUser().setX(s.getUser().getX() + s.getUser().getSpeed()  / 10f);
+                    update.setX(update.getX() + update.getSpeed()  / 10f);
                     break;
                 case "DOWN":
                     System.out.println("MOVE DOWN");
-                    s.getUser().setY(s.getUser().getY() + s.getUser().getSpeed());
-                    update.setY(update.getY() + update.getSpeed());
+                    s.getUser().setY(s.getUser().getY() + s.getUser().getSpeed()  / 10f);
+                    update.setY(update.getY() + update.getSpeed()  / 10f);
                     break;
             }
 
@@ -266,18 +265,18 @@ public class Broadcaster extends Thread implements Constants {
         User user = s.getUser();
         Update update = updates.getUpdates().get(s.getUser().getName());
         if (user.getState().equals("SWIFT") && user.getStamina() > 1) {
-            user.setStamina(user.getStamina() - 2);
-            update.setStamina(update.getStamina() - 2);
+            user.setStamina(user.getStamina() - 4);
+            update.setStamina(update.getStamina() - 4);
         }
     }
 
     private void recoverStamina(Session s) {
         User user = s.getUser();
         Update update = updates.getUpdates().get(s.getUser().getName());
-        if (user.getStamina() < 100 &&
+        if (user.getStamina() < 1000 &&
                 (user.getState().equals("STOP") || user.getState().equals("MOVE"))) {
-            user.setStamina(user.getStamina() + 1);
-            update.setStamina(update.getStamina() + 1);
+            user.setStamina(user.getStamina() + 2);
+            update.setStamina(update.getStamina() + 2);
         }
     }
 }
