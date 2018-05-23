@@ -29,7 +29,7 @@ public interface Constants {
     int HAMMER_RIGHT = 7;
 
     int PLAYER_SPEED = 15;
-    int PLAYER_SPEED_SLOW = 8;
+    int PLAYER_SPEED_SLOW = 5;
     int PLAYER_SPEED_SWIFT = 30;
 
     int HEAL = 30;

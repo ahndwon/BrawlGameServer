@@ -112,7 +112,7 @@ public class Broadcaster extends Thread implements Constants {
                 List<Integer> itemIndex = new ArrayList<>(itemRespawn.keySet());
 
                 for (Integer index : itemIndex) {
-                    System.out.println("index :" + index + ", " + itemRespawn.get(index));
+//                    System.out.println("index :" + index + ", " + itemRespawn.get(index));
                     Item item = itemRespawn.get(index);
                     item.time += -10;
 //                    itemRespawn.replace(index, item);
@@ -128,7 +128,7 @@ public class Broadcaster extends Thread implements Constants {
                         sessions) {
 //                    System.out.println("test2");
                     if (session.getUser() != null) {
-                            moveUsers(session.getUser().getDirection(), session);
+                        moveUsers(session.getUser().getDirection(), session);
                     }
                 }
             }
@@ -141,7 +141,7 @@ public class Broadcaster extends Thread implements Constants {
     }
 
     public void addItemRespawn(int index, int type) {
-        itemRespawn.put(index, new Item(type , 1000));
+        itemRespawn.put(index, new Item(type, 1000));
     }
 
     public void sendMap() {
@@ -230,18 +230,20 @@ public class Broadcaster extends Thread implements Constants {
 
                         case 3:
                             if (s.getUser().getMana() >= FULL_MANA - MANA) {
-                                s.getUser().setMana(FULL_MANA);
-//                                session.getUser().setMana(FULL_MANA);
+//                                System.out.println("test1");
                                 updates.getUpdates().get(s.getUser().getName()).setMana(FULL_MANA);
+                                s.getUser().setMana(FULL_MANA);
                             } else if (s.getUser().getMana() <= FULL_MANA - MANA) {
-//                                                    s.getUser().setMana(s.getUser().getMana() + MANA);
+//                                System.out.println("test2");
                                 updates.getUpdates().get(s.getUser().getName()).setMana(s.getUser().getMana() + MANA);
-//                                session.getUser().setMana(s.getUser().getMana() + MANA);
+                                s.getUser().setMana(s.getUser().getMana() + MANA);
                             }
+//                            System.out.println("test3");
                             addItemRespawn(i, Constants.TILE_MANA);
                             m[i] = 0;
                             sendCorrectMap(i, 0);
                             break;
+
                         default:
                             if (s.getUser().getState().equals("SWIFT")) {
                                 s.getUser().setSpeed(Constants.PLAYER_SPEED_SWIFT);
