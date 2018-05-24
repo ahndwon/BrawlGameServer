@@ -68,7 +68,7 @@ public class Session extends Thread {
 
                     len = socket.getInputStream().read(buf, 0, length);
                     String str = new String(buf, 0, len);
-                    System.out.println("str " + str);
+//                    System.out.println("str " + str);
                     Gson gson = new GsonBuilder().create();
                     JsonObject jsonObject = gson.fromJson(str, JsonObject.class);
 
@@ -114,6 +114,7 @@ public class Session extends Thread {
                                     .create();
                             Image image = gson.fromJson(state, Image.class);
                             user.setCharacterImage(image.getCharacterImage());
+                            System.out.println("character : " + image.getCharacterImage());
                             listener.onSetImage(this, image);
                             break;
                         case "SWIFT":

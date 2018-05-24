@@ -8,6 +8,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.SocketException;
@@ -77,21 +79,24 @@ public class Broadcaster extends Thread implements Constants {
 
     private void broadcast(String message) {
         for (Session session : sessions) {
-            OutputStream os = null;
+            int len = message.getBytes().length;
             try {
-                os = session.getOutputStream();
-                byte[] bytes = message.getBytes();
-                ByteBuffer buffer = ByteBuffer.allocate(2);
-                buffer.putShort((short) bytes.length);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream(len + 2);
+                DataOutputStream dos = new DataOutputStream(bos);
+//                byte[] bytes = message.getBytes();
+//                ByteBuffer buffer = ByteBuffer.allocate(2);
+//                buffer.putShort((short) bytes.length);
 //                System.out.println("buffer.array : " + Arrays.toString(buffer.array()));
 //                System.out.println("message : " + message);
-
-                os.write(buffer.array());
-                os.write(message.getBytes());
-//                System.out.println("message: " + message);
+                dos.writeShort(len);
+                dos.writeBytes(message);
+                byte[] data = bos.toByteArray();
+                System.out.println("len" + len);
+                System.out.println(message);
+                OutputStream os = session.getOutputStream();
+                os.write(data);
             } catch (SocketException ignore) {
                 updates.getUpdates().remove(session.getUser().getName());
-
                 sessions.remove(session);
 //                s.printStackTrace();
             } catch (IOException e) {
@@ -128,7 +133,7 @@ public class Broadcaster extends Thread implements Constants {
                         sessions) {
 //                    System.out.println("test2");
                     if (session.getUser() != null) {
-                        moveUsers( session);
+                        moveUsers(session);
                     }
                 }
             }
@@ -160,7 +165,7 @@ public class Broadcaster extends Thread implements Constants {
         broadcast(jsonObject.toString());
     }
 
-    private void moveUsers( Session s) {
+    private void moveUsers(Session s) {
         if (s.getUser().getStamina() > 5 &&
                 (s.getUser().getState().equals("MOVE") || s.getUser().getState().equals("SWIFT"))) {
             Update update = updates.getUpdates().get(s.getUser().getName());
@@ -173,18 +178,18 @@ public class Broadcaster extends Thread implements Constants {
                     break;
                 case "LEFT":
                     System.out.println("MOVE LEFT");
-                    s.getUser().setX(s.getUser().getX() - s.getUser().getSpeed()  / 10f);
-                    update.setX(update.getX() - update.getSpeed()  / 10f);
+                    s.getUser().setX(s.getUser().getX() - s.getUser().getSpeed() / 10f);
+                    update.setX(update.getX() - update.getSpeed() / 10f);
                     break;
                 case "RIGHT":
                     System.out.println("MOVE RIGHT");
-                    s.getUser().setX(s.getUser().getX() + s.getUser().getSpeed()  / 10f);
-                    update.setX(update.getX() + update.getSpeed()  / 10f);
+                    s.getUser().setX(s.getUser().getX() + s.getUser().getSpeed() / 10f);
+                    update.setX(update.getX() + update.getSpeed() / 10f);
                     break;
                 case "DOWN":
                     System.out.println("MOVE DOWN");
-                    s.getUser().setY(s.getUser().getY() + s.getUser().getSpeed()  / 10f);
-                    update.setY(update.getY() + update.getSpeed()  / 10f);
+                    s.getUser().setY(s.getUser().getY() + s.getUser().getSpeed() / 10f);
+                    update.setY(update.getY() + update.getSpeed() / 10f);
                     break;
             }
 

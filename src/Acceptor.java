@@ -78,8 +78,6 @@ public class Acceptor extends Thread implements Constants {
                                 s.getUser().setDirection(move.getDirection());
                                 String direction = move.getDirection();
 
-                                int[] m = map.getMap();
-
                                 s.getUser().setSpeed(PLAYER_SPEED);
                                 session.getUser().setSpeed(PLAYER_SPEED);
                                 updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED);
@@ -127,6 +125,7 @@ public class Acceptor extends Thread implements Constants {
                                     && diffX > 0) {
                                 isAttacked = true;
                             }
+
 
                             if (isAttacked) {
                                 updates.getUpdates().get(other.getName()).setHp(other.getHp() - Constants.DAMAGE);
