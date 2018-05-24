@@ -151,11 +151,16 @@ public class Session extends Thread {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Map.class, new MapTypeAdapter())
                 .create();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(2);
-        byteBuffer.putShort((short) gson.toJson(map).getBytes().length);
-        try {
-            socket.getOutputStream().write(byteBuffer.array());
-            socket.getOutputStream().write(gson.toJson(map).getBytes());
+        int len = gson.toJson(map).getBytes().length;
+//        ByteBuffer byteBuffer = ByteBuffer.allocate(2);
+//        byteBuffer.putShort((short) gson.toJson(map).getBytes().length);
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(bos)){
+            dos.writeShort(len);
+            dos.writeBytes(gson.toJson(map));
+            socket.getOutputStream().write(bos.toByteArray());
+//            socket.getOutputStream().write(byteBuffer.array());
+//            socket.getOutputStream().write(gson.toJson(map).getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }

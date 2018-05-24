@@ -79,10 +79,12 @@ public class Broadcaster extends Thread implements Constants {
 
     private void broadcast(String message) {
         for (Session session : sessions) {
+            OutputStream os;
             int len = message.getBytes().length;
             try {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(len + 2);
                 DataOutputStream dos = new DataOutputStream(bos);
+                os = session.getOutputStream();
 //                byte[] bytes = message.getBytes();
 //                ByteBuffer buffer = ByteBuffer.allocate(2);
 //                buffer.putShort((short) bytes.length);
@@ -93,7 +95,6 @@ public class Broadcaster extends Thread implements Constants {
                 byte[] data = bos.toByteArray();
                 System.out.println("len" + len);
                 System.out.println(message);
-                OutputStream os = session.getOutputStream();
                 os.write(data);
             } catch (SocketException ignore) {
                 updates.getUpdates().remove(session.getUser().getName());
