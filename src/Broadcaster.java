@@ -95,7 +95,11 @@ public class Broadcaster extends Thread implements Constants {
                 byte[] data = bos.toByteArray();
                 System.out.println("len" + len);
                 System.out.println(message);
+//                buffer.flip();
+
                 os.write(data);
+//                os.write(buffer.array());
+//                os.write(message.getBytes());
             } catch (SocketException ignore) {
                 updates.getUpdates().remove(session.getUser().getName());
                 sessions.remove(session);
@@ -114,17 +118,13 @@ public class Broadcaster extends Thread implements Constants {
             @Override
             public void run() {
                 sendUpdates();
-
                 List<Integer> itemIndex = new ArrayList<>(itemRespawn.keySet());
 
                 for (Integer index : itemIndex) {
-//                    System.out.println("index :" + index + ", " + itemRespawn.get(index));
                     Item item = itemRespawn.get(index);
                     item.time += -1;
-//                    itemRespawn.replace(index, item);
                     if (item.time < 0) {
                         map.getMap()[index] = item.type;
-//                        sendMap();
                         sendCorrectMap(index, item.type);
                         itemRespawn.remove(index);
                     }
@@ -132,7 +132,6 @@ public class Broadcaster extends Thread implements Constants {
 
                 for (Session session :
                         sessions) {
-//                    System.out.println("test2");
                     if (session.getUser() != null) {
                         moveUsers(session);
                     }
@@ -213,19 +212,19 @@ public class Broadcaster extends Thread implements Constants {
                 if (Util.getIndexByPos((int) s.getUser().getX(), (int) s.getUser().getY()) == i) {
                     switch (m[i]) {
                         case 1:
+                            updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED_SLOW);
                             s.getUser().setSpeed(PLAYER_SPEED_SLOW);
 //                            session.getUser().setSpeed(PLAYER_SPEED_SLOW);
-                            updates.getUpdates().get(s.getUser().getName()).setSpeed(PLAYER_SPEED_SLOW);
                             break;
 
                         case 2:
                             if (s.getUser().getHp() >= FULL_HP - HEAL) {
+                                updates.getUpdates().get(s.getUser().getName()).setHp(FULL_HP);
                                 s.getUser().setHp(FULL_HP);
 //                                session.getUser().setHp(FULL_HP);
-                                updates.getUpdates().get(s.getUser().getName()).setHp(FULL_HP);
                             } else if (s.getUser().getHp() <= FULL_HP - HEAL) {
-//                                                    s.getUser().setHp(s.getUser().getHp() + HEAL);
                                 updates.getUpdates().get(s.getUser().getName()).setHp(s.getUser().getHp() + HEAL);
+                                s.getUser().setHp(s.getUser().getHp() + HEAL);
 //                                session.getUser().setHp(s.getUser().getHp() + HEAL);
                             }
                             addItemRespawn(i, Constants.TILE_HEAL);
@@ -235,15 +234,12 @@ public class Broadcaster extends Thread implements Constants {
 
                         case 3:
                             if (s.getUser().getMana() >= FULL_MANA - MANA) {
-//                                System.out.println("test1");
                                 updates.getUpdates().get(s.getUser().getName()).setMana(FULL_MANA);
                                 s.getUser().setMana(FULL_MANA);
                             } else if (s.getUser().getMana() <= FULL_MANA - MANA) {
-//                                System.out.println("test2");
                                 updates.getUpdates().get(s.getUser().getName()).setMana(s.getUser().getMana() + MANA);
                                 s.getUser().setMana(s.getUser().getMana() + MANA);
                             }
-//                            System.out.println("test3");
                             addItemRespawn(i, Constants.TILE_MANA);
                             m[i] = 0;
                             sendCorrectMap(i, 0);

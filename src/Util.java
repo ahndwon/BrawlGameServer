@@ -33,5 +33,4 @@ public class Util implements Constants {
     public static boolean checkMousePos(int mouseX, int mouseY) {
         return 0 < mouseX && mouseX < WINDOW_WIDTH && MENU_HEIGHT < mouseY && mouseY < WINDOW_HEIGHT;
     }
-
  }

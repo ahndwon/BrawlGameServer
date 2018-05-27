@@ -40,7 +40,6 @@ public class Session extends Thread {
 
     Session(Socket socket) {
         this.socket = socket;
-//        this.user = new User();
     }
 
     void setSessionListener(SessionListener listener) {
@@ -72,7 +71,6 @@ public class Session extends Thread {
                     Gson gson = new GsonBuilder().create();
                     JsonObject jsonObject = gson.fromJson(str, JsonObject.class);
 
-    //                String message = new String(buf, 0, len);
                     String type = jsonObject.get("type").toString().replace("\"", "");
                     String state;
 
@@ -148,19 +146,21 @@ public class Session extends Thread {
     }
 
     public void sendMap(Map map) {
+        System.out.println("sendMap");
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Map.class, new MapTypeAdapter())
                 .create();
-        int len = gson.toJson(map).getBytes().length;
-//        ByteBuffer byteBuffer = ByteBuffer.allocate(2);
-//        byteBuffer.putShort((short) gson.toJson(map).getBytes().length);
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(bos)){
-            dos.writeShort(len);
-            dos.writeBytes(gson.toJson(map));
-            socket.getOutputStream().write(bos.toByteArray());
-//            socket.getOutputStream().write(byteBuffer.array());
-//            socket.getOutputStream().write(gson.toJson(map).getBytes());
+        ByteBuffer byteBuffer = ByteBuffer.allocate(2);
+        byteBuffer.putShort((short) gson.toJson(map).getBytes().length);
+        try {
+//        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(len + 2);
+//        DataOutputStream dos = new DataOutputStream(bos))
+
+//            dos.writeShort(len);
+//            dos.writeBytes(gson.toJson(map));
+//            socket.getOutputStream().write(bos.toByteArray());
+            socket.getOutputStream().write(byteBuffer.array());
+            socket.getOutputStream().write(gson.toJson(map).getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }

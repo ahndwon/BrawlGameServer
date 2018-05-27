@@ -11,7 +11,6 @@ public class Acceptor extends Thread implements Constants {
     private int port;
     private Map map;
 
-    // ArrayList 모든 연산이 스레드 안전하게 동작하는 것을 보장한다.
     private List<Session> sessions;
     private Updates updates;
 
@@ -85,7 +84,6 @@ public class Acceptor extends Thread implements Constants {
                                 Update update = updates.getUpdates().get(s.getUser().getName());
                                 update.setState(USER_MOVE);
                                 update.setDirection(direction);
-//                                moveUsers(direction, s);
                             }
                         }
                     }
@@ -153,6 +151,7 @@ public class Acceptor extends Thread implements Constants {
                         if (session.getUser().getMana() < 30) {
                             return;
                         }
+
                         System.out.println("onSpecial");
                         User user = session.getUser();
                         user.setState("SPECIAL");
@@ -172,28 +171,28 @@ public class Acceptor extends Thread implements Constants {
                             float diffY = userPos.y - otherPos.y;
 
                             if (user.getDirection().equals(PLAYER_DOWN)
-                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2.5f
-                                    && diffY < 0) {
+                                    && -diffY < BLOCK_SIZE * 5f
+                                    && Math.abs(diffX) < BLOCK_SIZE) {
                                 isAttacked = true;
                             } else if (user.getDirection().equals(PLAYER_UP)
-                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2.5f
-                                    && diffY > 0) {
+                                    && diffY < BLOCK_SIZE * 5f
+                                    && Math.abs(diffX) < BLOCK_SIZE) {
                                 isAttacked = true;
                             } else if (user.getDirection().equals(PLAYER_RIGHT)
-                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2.5f
-                                    && diffX < 0) {
+                                    && -diffX < BLOCK_SIZE * 5f
+                                    && Math.abs(diffY) < BLOCK_SIZE) {
                                 isAttacked = true;
                             } else if (user.getDirection().equals(PLAYER_LEFT)
-                                    && Vector2D.getDistance(userPos, otherPos) < BLOCK_SIZE * 2.5f
-                                    && diffX > 0) {
+                                    && diffX < BLOCK_SIZE * 5f
+                                    && Math.abs(diffY) < BLOCK_SIZE) {
                                 isAttacked = true;
                             }
 
                             if (isAttacked) {
-                                other.specialHit();
-                                user.attack();
                                 updates.getUpdates().get(other.getName()).setHp(other.getHp() - Constants.SPECIAL_DAMAGE);
                                 updates.getUpdates().get(user.getName()).setScore(user.getScore() + Constants.HIT_SCORE);
+                                other.specialHit();
+                                user.attack();
                                 System.out.println("hit");
                                 broadcaster.sendHit(user.getName(), other.getName(), SPECIAL_DAMAGE);
                                 isAttacked = false;
