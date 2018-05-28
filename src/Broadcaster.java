@@ -93,8 +93,6 @@ public class Broadcaster extends Thread implements Constants {
                 dos.writeShort(len);
                 dos.writeBytes(message);
                 byte[] data = bos.toByteArray();
-                System.out.println("len" + len);
-                System.out.println(message);
 //                buffer.flip();
 
                 os.write(data);
@@ -172,22 +170,22 @@ public class Broadcaster extends Thread implements Constants {
 
             switch (s.getUser().getDirection()) {
                 case "UP":
-                    System.out.println("MOVE UP");
+//                    System.out.println("MOVE UP");
                     s.getUser().setY(s.getUser().getY() - s.getUser().getSpeed() / 10f);
                     update.setY(update.getY() - update.getSpeed() / 10f);
                     break;
                 case "LEFT":
-                    System.out.println("MOVE LEFT");
+//                    System.out.println("MOVE LEFT");
                     s.getUser().setX(s.getUser().getX() - s.getUser().getSpeed() / 10f);
                     update.setX(update.getX() - update.getSpeed() / 10f);
                     break;
                 case "RIGHT":
-                    System.out.println("MOVE RIGHT");
+//                    System.out.println("MOVE RIGHT");
                     s.getUser().setX(s.getUser().getX() + s.getUser().getSpeed() / 10f);
                     update.setX(update.getX() + update.getSpeed() / 10f);
                     break;
                 case "DOWN":
-                    System.out.println("MOVE DOWN");
+//                    System.out.println("MOVE DOWN");
                     s.getUser().setY(s.getUser().getY() + s.getUser().getSpeed() / 10f);
                     update.setY(update.getY() + update.getSpeed() / 10f);
                     break;
